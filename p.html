@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>브이핏 절충형 유모차 (2026년형) | 베이비프라이스</title>
+<style>
+  :root{
+    --navy:#0F3E6B; --navy-dark:#0A2C4D; --navy-soft:#EEF3F8;
+    --ink:#1B1E21; --ink-2:#4A5158; --ink-3:#767D84;
+    --line:#D8DDE3; --line-2:#E9ECEF;
+    --surface:#F6F8FA; --price:#C0392B; --ok:#1E7B4D; --warn:#B26B00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',system-ui,sans-serif;
+    color:var(--ink);background:#fff;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .num{font-variant-numeric:tabular-nums}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;cursor:pointer}
+  .container{max-width:1200px;margin:0 auto;padding:0 24px}
+  @media(max-width:640px){.container{padding:0 16px}}
+
+  /* 헤더 (목록 페이지와 동일 규격) */
+  .utility{background:var(--surface);border-bottom:1px solid var(--line-2);font-size:12.5px;color:var(--ink-3)}
+  .utility .container{display:flex;justify-content:space-between;align-items:center;height:36px}
+  .utility a{margin-left:18px}
+  header{border-bottom:1px solid var(--line)}
+  .head{display:flex;align-items:center;gap:32px;padding:20px 0}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .mark{width:34px;height:34px;border:2px solid var(--navy);border-radius:4px;display:grid;place-items:center;color:var(--navy);font-weight:800;font-size:15px}
+  .brand strong{display:block;font-size:18px;letter-spacing:-.03em;color:var(--navy);line-height:1.25}
+  .brand span{display:block;font-size:11px;color:var(--ink-3)}
+  .searchbar{flex:1;display:flex;border:2px solid var(--navy);border-radius:3px;max-width:520px}
+  .searchbar input{flex:1;border:0;outline:0;padding:11px 14px;font:inherit}
+  .searchbar button{background:var(--navy);color:#fff;border:0;padding:0 22px;font-weight:700}
+  nav{background:var(--navy)}
+  nav ul{display:flex;list-style:none;overflow-x:auto}
+  nav a{display:block;padding:13px 20px;color:#fff;font-size:14px;font-weight:600;white-space:nowrap;opacity:.85}
+  nav a:hover,nav a.on{opacity:1;background:var(--navy-dark)}
+  @media(max-width:640px){.head{flex-wrap:wrap;gap:14px;padding:16px 0}}
+
+  .crumb{font-size:12.5px;color:var(--ink-3);padding:18px 0}
+  .crumb b{color:var(--ink-2);font-weight:600}
+
+  /* ── 상품 헤드 ── */
+  .top{display:grid;grid-template-columns:340px 1fr;gap:36px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+  @media(max-width:860px){.top{grid-template-columns:1fr;gap:22px}}
+  .gallery .main{border:1px solid var(--line);border-radius:3px;background:var(--surface);height:340px;display:grid;place-items:center}
+  .gallery .thumbs{display:flex;gap:6px;margin-top:8px}
+  .gallery .thumbs div{width:60px;height:60px;border:1px solid var(--line);border-radius:3px;background:var(--surface);display:grid;place-items:center}
+  .gallery .thumbs div.on{border-color:var(--navy);border-width:2px}
+
+  .head-info h1{font-size:25px;letter-spacing:-.03em;line-height:1.35}
+  .head-info .sub{font-size:13px;color:var(--ink-3);margin-top:6px}
+  .head-info .sub b{color:var(--ink-2);font-weight:600}
+  .head-info .star{color:#E8A33D;font-weight:700}
+
+  .kcbox{display:flex;align-items:center;gap:10px;border:1px solid #BFE0CE;background:#F1F8F4;border-radius:3px;padding:10px 13px;margin-top:14px;font-size:12.5px;color:var(--ink-2)}
+  .kcbox b{color:var(--ok);font-weight:700}
+  .kcbox a{margin-left:auto;color:var(--ok);font-weight:700;text-decoration:underline;white-space:nowrap}
+
+  .pricebox{border:1px solid var(--line);border-radius:3px;margin-top:16px}
+  .pricebox .pb-head{display:flex;align-items:flex-end;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line-2);gap:14px;flex-wrap:wrap}
+  .pricebox .lbl{font-size:11.5px;color:var(--ink-3)}
+  .pricebox .big{font-size:32px;font-weight:800;color:var(--price);letter-spacing:-.035em;line-height:1.15}
+  .pricebox .big small{font-size:17px;font-weight:700}
+  .pricebox .at{font-size:13px;color:var(--ink-2);margin-top:2px}
+  .pricebox .at b{color:var(--ink)}
+  .signal{text-align:right;font-size:12.5px;line-height:1.5}
+  .signal .tag{display:inline-block;font-size:11.5px;font-weight:800;padding:3px 8px;border-radius:2px;color:#fff;background:var(--ok);margin-bottom:4px}
+  .signal .tag.hold{background:var(--warn)}
+  .signal p{color:var(--ink-3)}
+  .pb-actions{display:flex;gap:8px;padding:14px 18px}
+  .btn{border-radius:3px;padding:13px 18px;font-size:14px;font-weight:700;border:1px solid var(--navy);background:var(--navy);color:#fff;flex:1}
+  .btn:hover{background:var(--navy-dark)}
+  .btn.line{background:#fff;color:var(--navy)}
+  .btn.line:hover{background:var(--navy-soft)}
+  .btn.gray{background:#fff;color:var(--ink-2);border-color:var(--line);flex:none;padding:13px 16px}
+
+  /* ── 탭 ── */
+  .tabs{display:flex;border-bottom:2px solid var(--ink);margin-top:36px;list-style:none;overflow-x:auto}
+  .tabs button{background:none;border:0;padding:13px 22px;font-size:14.5px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+  .tabs button.on{color:var(--navy);border-bottom:3px solid var(--navy);margin-bottom:-2px}
+  .tabs button span{color:var(--ink-3);font-weight:600;margin-left:4px;font-size:13px}
+
+  section.block{padding:34px 0;border-bottom:1px solid var(--line-2)}
+  .block h2{font-size:19px;letter-spacing:-.025em;margin-bottom:4px}
+  .block .desc{font-size:13px;color:var(--ink-3);margin-bottom:18px}
+
+  /* ── 가격 그래프 ── */
+  .chart-card{border:1px solid var(--line);border-radius:3px}
+  .chart-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line-2);flex-wrap:wrap;gap:10px}
+  .ranges{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .ranges button{background:#fff;border:0;padding:7px 14px;font-size:12.5px;font-weight:700;color:var(--ink-3)}
+  .ranges button+button{border-left:1px solid var(--line)}
+  .ranges button.on{background:var(--navy);color:#fff}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--ink-3);align-items:center}
+  .legend i{display:inline-block;width:14px;height:2px;background:var(--navy);margin-right:5px;vertical-align:3px}
+  .legend i.avg{background:var(--ink-3);height:0;border-top:2px dashed var(--ink-3)}
+  .chart-wrap{padding:16px 12px 6px}
+  svg.chart{width:100%;height:260px;display:block}
+  .grid line{stroke:var(--line-2);stroke-width:1}
+  .axis text{font-size:10.5px;fill:var(--ink-3);font-variant-numeric:tabular-nums}
+  .plot{fill:none;stroke:var(--navy);stroke-width:2;stroke-linejoin:round}
+  .area{fill:var(--navy-soft);opacity:.75}
+  .avgline{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:4 3}
+  .dot-low{fill:var(--ok)} .dot-high{fill:var(--price)}
+  .pt-label{font-size:10.5px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pt-label.low{fill:var(--ok)} .pt-label.high{fill:var(--price)}
+
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line-2)}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stats div{padding:13px 18px;border-right:1px solid var(--line-2)}
+  .stats div:last-child{border-right:0}
+  .stats .k{font-size:11.5px;color:var(--ink-3)}
+  .stats .v{font-size:17px;font-weight:800;letter-spacing:-.02em;margin-top:1px}
+  .stats .v.low{color:var(--ok)} .stats .v.high{color:var(--price)}
+  .alertbar{background:var(--navy-soft);border:1px solid #C6D8E8;border-radius:3px;padding:13px 16px;margin-top:14px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+  .alertbar b{color:var(--navy)}
+  .alertbar button{margin-left:auto;border:1px solid var(--navy);background:#fff;color:var(--navy);border-radius:3px;padding:8px 16px;font-size:13px;font-weight:700}
+  .alertbar button:hover{background:var(--navy);color:#fff}
+
+  /* ── 판매처 표 ── */
+  table.sellers{width:100%;border-collapse:collapse;font-size:13.5px;border:1px solid var(--line);border-radius:3px}
+  table.sellers thead th{background:var(--surface);color:var(--ink-2);font-size:12px;font-weight:700;text-align:right;padding:10px 14px;border-bottom:1px solid var(--line)}
+  table.sellers thead th:first-child{text-align:left}
+  table.sellers thead th:last-child{text-align:center;width:110px}
+  table.sellers td{padding:12px 14px;border-bottom:1px solid var(--line-2);text-align:right}
+  table.sellers td:first-child{text-align:left}
+  table.sellers td:last-child{text-align:center}
+  table.sellers tr:last-child td{border-bottom:0}
+  table.sellers tr.best td{background:#FDF6F5}
+  .shopname{font-weight:700;display:flex;align-items:center;gap:7px}
+  .lowtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--price);padding:1px 5px;border-radius:2px}
+  .shopsub{font-size:11.5px;color:var(--ink-3);font-weight:500;margin-top:1px}
+  .total{font-weight:800;font-size:15px}
+  .go{border:1px solid var(--line);background:#fff;border-radius:3px;padding:7px 15px;font-size:12.5px;font-weight:700;color:var(--navy)}
+  .go:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+  @media(max-width:640px){table.sellers th:nth-child(3),table.sellers td:nth-child(3){display:none}}
+
+  /* ── 사양 표 ── */
+  table.spec{width:100%;border-collapse:collapse;font-size:13.5px;border-top:1px solid var(--ink)}
+  table.spec th{background:var(--surface);text-align:left;font-weight:600;color:var(--ink-2);width:150px;padding:11px 16px;border-bottom:1px solid var(--line-2);font-size:13px}
+  table.spec td{padding:11px 16px;border-bottom:1px solid var(--line-2);color:var(--ink-2)}
+  @media(max-width:640px){table.spec th{width:100px;padding:10px 12px}}
+
+  /* ── 후기 ── */
+  .rev-summary{display:grid;grid-template-columns:180px 1fr;gap:30px;border:1px solid var(--line);border-radius:3px;padding:20px 22px;align-items:center}
+  @media(max-width:760px){.rev-summary{grid-template-columns:1fr;gap:16px}}
+  .score{text-align:center;border-right:1px solid var(--line-2)}
+  @media(max-width:760px){.score{border-right:0;border-bottom:1px solid var(--line-2);padding-bottom:14px}}
+  .score .n{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .score .s{color:#E8A33D;font-size:15px;margin-top:4px;letter-spacing:2px}
+  .score .c{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .bars{display:flex;flex-direction:column;gap:6px}
+  .bar{display:grid;grid-template-columns:74px 1fr 44px;align-items:center;gap:10px;font-size:12.5px;color:var(--ink-2)}
+  .bar .track{height:8px;background:var(--line-2);border-radius:2px;overflow:hidden}
+  .bar .fill{height:100%;background:var(--navy);border-radius:2px}
+  .bar .pct{text-align:right;color:var(--ink-3);font-size:12px}
+
+  .revfilter{display:flex;gap:6px;margin:20px 0 4px;flex-wrap:wrap}
+  .revfilter button{border:1px solid var(--line);background:#fff;border-radius:3px;padding:7px 13px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+  .revfilter button.on{border-color:var(--navy);background:var(--navy-soft);color:var(--navy);font-weight:700}
+
+  .review{border-bottom:1px solid var(--line-2);padding:18px 0}
+  .rv-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3)}
+  .rv-top .st{color:#E8A33D;font-weight:700;letter-spacing:1px}
+  .rv-top .who{color:var(--ink-2);font-weight:600}
+  .rv-top .chip{border:1px solid var(--line);border-radius:2px;padding:1px 6px;font-size:11px;color:var(--ink-3)}
+  .rv-top time{margin-left:auto}
+  .rv-body{margin-top:9px;font-size:14px;color:var(--ink-2);line-height:1.7}
+  .rv-tags{margin-top:9px;display:flex;gap:6px;flex-wrap:wrap}
+  .rv-tags span{font-size:11.5px;background:var(--surface);border:1px solid var(--line-2);border-radius:2px;padding:2px 7px;color:var(--ink-3)}
+  .rv-foot{margin-top:10px;font-size:12px;color:var(--ink-3)}
+  .rv-foot button{border:1px solid var(--line);background:#fff;border-radius:3px;padding:5px 11px;font-size:12px;color:var(--ink-2);margin-right:6px}
+  .rv-foot button:hover{border-color:var(--navy);color:var(--navy)}
+  .more{width:100%;border:1px solid var(--line);background:#fff;border-radius:3px;padding:13px;font-size:13.5px;font-weight:700;color:var(--ink-2);margin-top:18px}
+  .more:hover{border-color:var(--navy);color:var(--navy)}
+
+  .caution{margin-top:16px;font-size:12px;color:var(--ink-3);background:var(--surface);border:1px solid var(--line-2);border-radius:3px;padding:12px 14px;line-height:1.7}
+  footer{border-top:1px solid var(--line);padding:24px 0 44px;font-size:12px;color:var(--ink-3);line-height:1.9;background:var(--surface);margin-top:10px}
+
+  /* ── 상품 상세 이미지 (쭈루룩) ── */
+  .detail-wrap{position:relative;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .detail-wrap.folded{max-height:900px}
+  .detail-wrap.folded::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:180px;
+    background:linear-gradient(rgba(255,255,255,0), #fff 78%);pointer-events:none;
+  }
+  .panel{padding:44px 32px;text-align:center;border-bottom:1px solid var(--line-2)}
+  .panel:last-child{border-bottom:0}
+  .panel .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.14em;color:var(--navy);margin-bottom:10px}
+  .panel h3{font-size:23px;font-weight:800;letter-spacing:-.035em;line-height:1.4}
+  .panel h3 em{font-style:normal;color:var(--navy)}
+  .panel p{font-size:13.5px;color:var(--ink-3);margin-top:9px;line-height:1.75}
+  .panel .art{margin:26px auto 0;max-width:520px}
+  .panel .art svg{width:100%;height:auto;display:block}
+  .panel.tint{background:var(--navy-soft)}
+  .panel.dark{background:var(--navy);color:#fff}
+  .panel.dark h3{color:#fff} .panel.dark h3 em{color:#9FC4E4}
+  .panel.dark p{color:#B9CCDE} .panel.dark .eyebrow{color:#9FC4E4}
+  .panel.gray{background:var(--surface)}
+  @media(max-width:640px){.panel{padding:34px 18px}.panel h3{font-size:19px}}
+
+  .callouts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line-2)}
+  .callouts>div{padding:22px 16px;border-right:1px solid var(--line-2)}
+  .callouts>div:last-child{border-right:0}
+  .callouts .n{font-size:22px;font-weight:800;color:var(--navy);letter-spacing:-.03em}
+  .callouts .k{font-size:12px;color:var(--ink-3);margin-top:2px}
+  @media(max-width:640px){.callouts{grid-template-columns:1fr}.callouts>div{border-right:0;border-bottom:1px solid var(--line-2)}}
+
+  .unfold{
+    width:100%;border:1px solid var(--line);background:#fff;border-radius:3px;
+    padding:15px;font-size:14px;font-weight:700;color:var(--navy);margin-top:12px;
+    display:flex;align-items:center;justify-content:center;gap:7px;
+  }
+  .unfold:hover{background:var(--navy-soft)}
+  .unfold svg{transition:transform .2s}
+  .unfold.open svg{transform:rotate(180deg)}
+
+  /* ── 포토 후기 ── */
+  .photo-strip{margin-top:22px;border:1px solid var(--line);border-radius:3px;padding:16px 18px}
+  .ps-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .ps-top h3{font-size:14px;font-weight:700}
+  .ps-top h3 b{color:var(--navy)}
+  .ps-top a{font-size:12.5px;color:var(--ink-3);font-weight:600}
+  .ps-top a:hover{color:var(--navy);text-decoration:underline}
+  .ps-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  @media(max-width:860px){.ps-grid{grid-template-columns:repeat(3,1fr)}}
+  .ps-grid figure{position:relative;border:1px solid var(--line);border-radius:3px;background:var(--surface);aspect-ratio:1;display:grid;place-items:center;overflow:hidden;cursor:pointer}
+  .ps-grid figure:hover{border-color:var(--navy)}
+  .ps-grid figcaption{
+    position:absolute;left:0;right:0;bottom:0;background:rgba(27,30,33,.72);color:#fff;
+    font-size:10.5px;padding:4px 6px;text-align:center;
+  }
+  .ps-grid .more-ph{background:var(--navy-soft);color:var(--navy);font-weight:800;font-size:13px;display:grid;place-items:center}
+
+  .rv-photos{display:flex;gap:7px;margin-top:11px}
+  .rv-photos div{width:88px;height:88px;border:1px solid var(--line);border-radius:3px;background:var(--surface);display:grid;place-items:center;cursor:pointer}
+  .rv-photos div:hover{border-color:var(--navy)}
+  .review.hilight{background:#FBFCFD;border-left:3px solid var(--navy);padding-left:16px}
+  .best-tag{font-size:10.5px;font-weight:800;color:#fff;background:var(--navy);padding:2px 6px;border-radius:2px}
+
+  /* 고정 하단 바 */
+  .sticky{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--navy);box-shadow:0 -2px 10px rgba(15,62,107,.07);z-index:20}
+  .sticky .container{display:flex;align-items:center;gap:14px;padding:11px 24px}
+  .sticky .nm{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sticky .pr{margin-left:auto;font-size:20px;font-weight:800;color:var(--price);white-space:nowrap}
+  .sticky .btn{flex:none;padding:11px 22px}
+  @media(max-width:640px){.sticky .nm{display:none}.sticky .container{padding:10px 16px}}
+</style>
+</head>
+<body>
+
+<div class="utility">
+  <div class="container">
+    <div>가격 정보는 매일 오전 6시 갱신됩니다 · 최종 갱신 2026.07.12 06:00</div>
+    <div><a href="#">고객센터</a><a href="#">로그인</a></div>
+  </div>
+</div>
+
+<header>
+  <div class="container head">
+    <div class="brand">
+      <div class="mark">B</div>
+      <div><strong>베이비프라이스</strong><span>아기용품 가격비교</span></div>
+    </div>
+    <div class="searchbar">
+      <input placeholder="상품명, 브랜드, 모델명으로 검색하세요" aria-label="상품 검색">
+      <button>검색</button>
+    </div>
+  </div>
+</header>
+
+<nav><div class="container"><ul>
+  <li><a href="#" class="on">유모차·카시트</a></li>
+  <li><a href="#">수유·이유식</a></li>
+  <li><a href="#">기저귀·물티슈</a></li>
+  <li><a href="#">아기침대·매트</a></li>
+  <li><a href="#">목욕·스킨케어</a></li>
+  <li><a href="#">출산 준비물 견적</a></li>
+</ul></div></nav>
+
+<div class="container">
+  <div class="crumb">홈 › 유모차·카시트 › 유모차 › <b>브이핏 절충형 유모차 (2026년형)</b></div>
+
+  <!-- 상품 헤드 -->
+  <div class="top">
+    <div class="gallery">
+      <div class="main">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#8A949E" stroke-width="1">
+          <circle cx="7.5" cy="19" r="1.8"/><circle cx="17" cy="19" r="1.8"/>
+          <path d="M3 4h2.2l2.4 10.5h9.6L19.5 7H6.2"/></svg>
+      </div>
+      <div class="thumbs">
+        <div class="on"></div><div></div><div></div><div></div>
+      </div>
+    </div>
+
+    <div class="head-info">
+      <h1>브이핏 절충형 유모차 (2026년형)</h1>
+      <div class="sub">
+        브랜드 <b>브이핏</b> · 모델 VF-2600 · 출시 2026.02 ·
+        <span class="star">★ 4.6</span> 구매 후기 <b class="num">2,841</b>건
+      </div>
+
+      <div class="kcbox">
+        <b>KC 안전인증 확인</b>
+        <span>인증번호 CB-2025-0148 · 최근 리콜 이력 없음 (2026.07.06 대조)</span>
+        <a href="#">인증정보 조회</a>
+      </div>
+
+      <div class="pricebox">
+        <div class="pb-head">
+          <div>
+            <div class="lbl">배송비 포함 최저가</div>
+            <div class="big num">292,000<small>원</small></div>
+            <div class="at"><b>키즈일레븐</b> · 판매가 289,000원 + 배송비 3,000원</div>
+          </div>
+          <div class="signal">
+            <span class="tag">지금 사도 좋은 가격</span>
+            <p>최근 90일 평균가보다 <b class="num">11,400원</b> 저렴합니다.<br>90일 최저가와는 3,000원 차이입니다.</p>
+          </div>
+        </div>
+        <div class="pb-actions">
+          <button class="btn">최저가 판매처로 이동</button>
+          <button class="btn line">견적함에 담기</button>
+          <button class="btn gray">찜</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 탭 -->
+  <ul class="tabs">
+    <li><button class="on" data-go="price">가격 변동</button></li>
+    <li><button data-go="sellers">판매처 비교<span class="num">4</span></button></li>
+    <li><button data-go="spec">상품 사양</button></li>
+    <li><button data-go="detail">상세 정보</button></li>
+    <li><button data-go="review">구매 후기<span class="num">2,841</span></button></li>
+  </ul>
+
+  <!-- 가격 변동 -->
+  <section class="block" id="price">
+    <h2>가격 변동 추이</h2>
+    <p class="desc">제휴 판매처 4곳의 배송비 포함 최저가를 매일 기록합니다. 언제 사는 것이 유리한지 판단하는 데 참고하세요.</p>
+
+    <div class="chart-card">
+      <div class="chart-top">
+        <div class="ranges">
+          <button data-range="30">1개월</button>
+          <button class="on" data-range="90">3개월</button>
+          <button data-range="180">6개월</button>
+        </div>
+        <div class="legend">
+          <span><i></i>일별 최저가</span>
+          <span><i class="avg"></i>기간 평균가</span>
+        </div>
+      </div>
+      <div class="chart-wrap"><svg class="chart" id="chart" viewBox="0 0 760 260" preserveAspectRatio="none" role="img" aria-label="가격 변동 그래프"></svg></div>
+      <div class="stats" id="stats"></div>
+    </div>
+
+    <div class="alertbar">
+      <b>가격 알림 신청</b>
+      <span>원하는 금액 이하로 떨어지면 문자로 알려드립니다. 알림 신청에는 비용이 들지 않습니다.</span>
+      <button>알림 받기</button>
+    </div>
+    <p class="caution">그래프의 가격은 판매처가 등록한 정상 판매가 기준이며, 카드사 할인·쿠폰·적립은 반영되지 않았습니다. 명절·출산 시즌에는 일시적으로 가격이 오를 수 있습니다.</p>
+  </section>
+
+  <!-- 판매처 -->
+  <section class="block" id="sellers">
+    <h2>판매처 가격 비교</h2>
+    <p class="desc">판매가가 낮아도 배송비를 더하면 순서가 바뀔 수 있어, 결제 예상금액 기준으로 정렬합니다.</p>
+    <table class="sellers">
+      <thead><tr><th>판매처</th><th>판매가</th><th>배송비</th><th>결제 예상금액</th><th>이동</th></tr></thead>
+      <tbody id="sellerRows"></tbody>
+    </table>
+    <p class="caution">결제 예상금액 = 판매가 + 기본 배송비. 제주·도서산간 추가 배송비는 판매처 정책에 따릅니다. 베이비프라이스는 통신판매중개자로 거래의 당사자가 아닙니다.</p>
+  </section>
+
+  <!-- 사양 -->
+  <section class="block" id="spec">
+    <h2>상품 사양</h2>
+    <p class="desc">제조사가 제공한 정보입니다. 구매 전 판매처 상세페이지에서 최종 확인해 주세요.</p>
+    <table class="spec">
+      <tr><th>종류</th><td>절충형 유모차</td></tr>
+      <tr><th>사용 월령</th><td>신생아 ~ 36개월 (체중 15kg 이하)</td></tr>
+      <tr><th>무게</th><td>6.8kg (본체 기준)</td></tr>
+      <tr><th>접었을 때 크기</th><td>가로 45 × 세로 30 × 높이 62cm · 기내 반입 불가</td></tr>
+      <tr><th>주요 기능</th><td>양대면 시트, 3단 등받이(최대 165°), 4륜 서스펜션, 원터치 폴딩</td></tr>
+      <tr><th>시트 소재</th><td>통기성 메쉬 · 세탁 가능 (분리형)</td></tr>
+      <tr><th>구성품</th><td>본체, 등받이 쿠션, 컵홀더, 우비, 모기장</td></tr>
+      <tr><th>안전 인증</th><td>KC 어린이제품 안전확인 CB-2025-0148</td></tr>
+      <tr><th>A/S</th><td>본체 2년 · 소모품 6개월 (제조사 직접 처리)</td></tr>
+      <tr><th>제조국</th><td>중국 (설계 대한민국)</td></tr>
+    </table>
+  </section>
+
+  <!-- 상세 정보 (제조사 제공 상세 이미지) -->
+  <section class="block" id="detail">
+    <h2>상품 상세 정보</h2>
+    <p class="desc">제조사가 제공한 상세 이미지입니다. 판매처마다 상세 내용이 다를 수 있으니 결제 전 해당 판매처 페이지에서 최종 확인해 주세요.</p>
+
+    <div class="detail-wrap folded" id="detailWrap">
+
+      <div class="panel">
+        <div class="eyebrow">V-FIT VF-2600</div>
+        <h3>한 손으로 접고,<br><em>한 손으로 드는</em> 6.8kg</h3>
+        <p>엘리베이터 없는 빌라도, 지하철 계단도.<br>매일 드는 무게라서 100g까지 줄였습니다.</p>
+        <div class="art">
+          <svg viewBox="0 0 520 220" fill="none">
+            <rect x="0" y="0" width="520" height="220" fill="#F6F8FA"/>
+            <g stroke="#0F3E6B" stroke-width="2.4" stroke-linecap="round">
+              <path d="M150 60 L215 155"/><path d="M215 155 L340 155"/>
+              <path d="M300 62 L215 155"/><path d="M150 60 L305 60"/>
+              <path d="M340 155 L370 95"/>
+              <rect x="160" y="42" width="150" height="20" rx="8" fill="#EEF3F8"/>
+            </g>
+            <circle cx="205" cy="176" r="19" stroke="#0F3E6B" stroke-width="2.4" fill="#fff"/>
+            <circle cx="205" cy="176" r="6" fill="#0F3E6B"/>
+            <circle cx="352" cy="176" r="19" stroke="#0F3E6B" stroke-width="2.4" fill="#fff"/>
+            <circle cx="352" cy="176" r="6" fill="#0F3E6B"/>
+            <path d="M400 96 L470 96" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="4 3"/>
+            <text x="435" y="88" text-anchor="middle" font-size="15" font-weight="800" fill="#C0392B" font-family="sans-serif">6.8kg</text>
+            <text x="60" y="115" font-size="12" fill="#767D84" font-family="sans-serif">본체 기준</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel tint">
+        <div class="eyebrow">FLAT RECLINE 165°</div>
+        <h3>신생아도 눕혀서,<br>돌 아기는 <em>앉혀서</em></h3>
+        <p>등받이 3단 조절. 최대 165°까지 평탄해집니다.<br>목을 못 가누는 시기부터 사용할 수 있습니다.</p>
+        <div class="art">
+          <svg viewBox="0 0 520 190" fill="none">
+            <g stroke="#0F3E6B" stroke-width="2.2" stroke-linecap="round">
+              <path d="M60 150 L200 150"/><path d="M60 150 L60 60"/>
+              <path d="M175 150 L175 95"/><path d="M320 150 L460 150"/><path d="M320 150 L285 78"/>
+            </g>
+            <path d="M60 60 A 90 90 0 0 1 105 138" stroke="#C0392B" stroke-width="1.4" stroke-dasharray="4 3"/>
+            <text x="122" y="70" font-size="14" font-weight="800" fill="#C0392B" font-family="sans-serif">165°</text>
+            <text x="352" y="66" font-size="14" font-weight="800" fill="#0F3E6B" font-family="sans-serif">100°</text>
+            <text x="130" y="180" text-anchor="middle" font-size="12" fill="#767D84" font-family="sans-serif">눕힘 · 신생아~4개월</text>
+            <text x="390" y="180" text-anchor="middle" font-size="12" fill="#767D84" font-family="sans-serif">세움 · 6개월 이후</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">TWO-WAY SEAT</div>
+        <h3>아기가 엄마를 볼지,<br><em>세상을 볼지</em> 고르세요</h3>
+        <p>시트를 분리해 방향만 바꾸면 됩니다. 공구가 필요 없습니다.<br>낯가림이 심한 시기엔 대면, 호기심이 생기면 전면으로.</p>
+        <div class="art">
+          <svg viewBox="0 0 520 160" fill="none">
+            <rect x="70" y="40" width="140" height="80" rx="6" fill="#EEF3F8" stroke="#0F3E6B" stroke-width="2"/>
+            <path d="M110 100 L110 62 L165 62" stroke="#0F3E6B" stroke-width="2.4" stroke-linecap="round"/>
+            <text x="140" y="140" text-anchor="middle" font-size="12" fill="#767D84" font-family="sans-serif">대면 (마주 보기)</text>
+            <path d="M235 80 L285 80 M270 68 L285 80 L270 92" stroke="#C0392B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="310" y="40" width="140" height="80" rx="6" fill="#EEF3F8" stroke="#0F3E6B" stroke-width="2"/>
+            <path d="M410 100 L410 62 L355 62" stroke="#0F3E6B" stroke-width="2.4" stroke-linecap="round"/>
+            <text x="380" y="140" text-anchor="middle" font-size="12" fill="#767D84" font-family="sans-serif">전면 (바깥 보기)</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel dark">
+        <div class="eyebrow">SAFETY</div>
+        <h3>안전은 <em>옵션이 아닙니다</em></h3>
+        <p>국가통합인증 KC 어린이제품 안전확인을 받은 제품입니다.<br>인증번호 CB-2025-0148 · 5점식 안전벨트 · 이중 잠금 브레이크</p>
+        <div class="art">
+          <svg viewBox="0 0 520 130" fill="none">
+            <g stroke="#9FC4E4" stroke-width="2" fill="none">
+              <path d="M120 25 L150 38 V62 c0 20 -13 34 -30 42 c-17 -8 -30 -22 -30 -42 V38 Z"/>
+              <path d="M107 62 l9 9 l18 -20"/>
+            </g>
+            <text x="120" y="122" text-anchor="middle" font-size="12" fill="#B9CCDE" font-family="sans-serif">KC 안전확인</text>
+            <g stroke="#9FC4E4" stroke-width="2" fill="none">
+              <circle cx="260" cy="62" r="30"/><path d="M260 32 v60 M230 62 h60 M239 41 l42 42 M281 41 l-42 42"/>
+            </g>
+            <text x="260" y="122" text-anchor="middle" font-size="12" fill="#B9CCDE" font-family="sans-serif">5점식 안전벨트</text>
+            <g stroke="#9FC4E4" stroke-width="2" fill="none">
+              <circle cx="400" cy="62" r="28"/><circle cx="400" cy="62" r="9"/><path d="M400 34 v10 M400 80 v10"/>
+            </g>
+            <text x="400" y="122" text-anchor="middle" font-size="12" fill="#B9CCDE" font-family="sans-serif">이중 잠금 브레이크</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="panel gray">
+        <div class="eyebrow">SIZE</div>
+        <h3>접으면 <em>트렁크에 세로로</em></h3>
+        <p>준중형 세단(아반떼 기준) 트렁크에 세로로 들어갑니다.</p>
+        <div class="art">
+          <svg viewBox="0 0 520 200" fill="none">
+            <rect x="170" y="40" width="120" height="120" rx="4" fill="#fff" stroke="#0F3E6B" stroke-width="2"/>
+            <path d="M170 25 L290 25" stroke="#C0392B" stroke-width="1.2"/>
+            <path d="M170 20 L170 30 M290 20 L290 30" stroke="#C0392B" stroke-width="1.2"/>
+            <text x="230" y="16" text-anchor="middle" font-size="12" font-weight="700" fill="#C0392B" font-family="sans-serif">45cm</text>
+            <path d="M305 40 L305 160" stroke="#C0392B" stroke-width="1.2"/>
+            <path d="M300 40 L310 40 M300 160 L310 160" stroke="#C0392B" stroke-width="1.2"/>
+            <text x="318" y="104" font-size="12" font-weight="700" fill="#C0392B" font-family="sans-serif">62cm</text>
+            <text x="230" y="182" text-anchor="middle" font-size="12" fill="#767D84" font-family="sans-serif">폴딩 시 · 두께 30cm</text>
+          </svg>
+        </div>
+        <div class="callouts">
+          <div><div class="n num">6.8kg</div><div class="k">본체 무게</div></div>
+          <div><div class="n num">15kg</div><div class="k">최대 하중</div></div>
+          <div><div class="n num">2년</div><div class="k">본체 A/S</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="eyebrow">WASHABLE</div>
+        <h3>시트는 <em>통째로 세탁기에</em></h3>
+        <p>등받이 시트와 안전벨트 커버를 분리해 세탁할 수 있습니다.<br>찬물 · 중성세제 · 그늘 건조를 권장합니다. 건조기·표백제는 사용하지 마세요.</p>
+      </div>
+
+      <div class="panel gray">
+        <div class="eyebrow">구성품</div>
+        <h3>박스를 열면 <em>이렇게 들어 있습니다</em></h3>
+        <p>본체 1 · 등받이 쿠션 1 · 컵홀더 1 · 우비 1 · 모기장 1 · 사용설명서 1<br>조립 소요 시간 약 10분, 별도 공구가 필요하지 않습니다.</p>
+      </div>
+
+    </div>
+
+    <button class="unfold" id="unfold">
+      상세정보 펼쳐보기
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+
+    <p class="caution">상세 이미지의 문구는 제조사가 작성한 것으로, 베이비프라이스가 성능을 보증하지 않습니다. 표시·광고에 대한 책임은 판매처와 제조사에 있습니다.</p>
+  </section>
+
+  <!-- 후기 -->
+  <section class="block" id="review">
+    <h2>구매 후기</h2>
+    <p class="desc">실제 구매가 확인된 이용자만 후기를 남길 수 있습니다. 판매처에서 대가를 받고 작성된 후기는 표시되지 않습니다.</p>
+
+    <div class="rev-summary">
+      <div class="score">
+        <div class="n num">4.6</div>
+        <div class="s">★★★★★</div>
+        <div class="c num">2,841건</div>
+      </div>
+      <div class="bars" id="bars"></div>
+    </div>
+
+    <div class="photo-strip">
+      <div class="ps-top">
+        <h3>구매자가 직접 찍은 사진 <b class="num">412</b>장</h3>
+        <a href="#">사진만 모아보기 ›</a>
+      </div>
+      <div class="ps-grid" id="psGrid"></div>
+    </div>
+
+    <div class="revfilter" id="revfilter">
+      <button class="on" data-f="all">전체</button>
+      <button data-f="포토">사진 후기</button>
+      <button data-f="신생아">신생아 사용</button>
+      <button data-f="돌">돌 이후 사용</button>
+      <button data-f="단점">아쉬운 점</button>
+    </div>
+
+    <div id="reviews"></div>
+    <button class="more">후기 더 보기 (2,835건 남음)</button>
+
+    <p class="caution">후기는 개인의 사용 경험이며, 아기의 발달 정도에 따라 느낌이 다를 수 있습니다. 안전 관련 문제가 의심되는 후기는 제품안전정보센터에 신고 후 상품 노출을 중단합니다.</p>
+  </section>
+</div>
+
+<div class="sticky">
+  <div class="container">
+    <div class="nm">브이핏 절충형 유모차 (2026년형)</div>
+    <div class="pr num">292,000원</div>
+    <button class="btn line" style="flex:none;padding:11px 18px">견적함</button>
+    <button class="btn">최저가로 이동</button>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    (주)베이비프라이스 · 대표 홍길동 · 사업자등록번호 000-00-00000 · 통신판매중개업 신고 제2026-서울중구-0000호<br>
+    베이비프라이스는 통신판매중개자로서 통신판매의 당사자가 아니며, 상품·거래정보 및 거래에 대하여 책임을 지지 않습니다.
+  </div>
+</footer>
+
+<script>
+/* ── 판매처 ── */
+const SHOPS = [
+  {name:'키즈일레븐', price:289000, ship:3000,  sub:'A/S 2년 · 무료 조립 안내'},
+  {name:'베이비몰',   price:298000, ship:0,     sub:'무료배송 · 30일 무료반품'},
+  {name:'맘스마트',   price:305000, ship:0,     sub:'무료배송 · 적립 3%'},
+  {name:'쿠팡',       price:312000, ship:0,     sub:'로켓배송 · 당일출고'},
+];
+const won = n => n.toLocaleString('ko-KR') + '원';
+const rows = SHOPS.map(s=>({...s, total:s.price+s.ship})).sort((a,b)=>a.total-b.total);
+document.getElementById('sellerRows').innerHTML = rows.map((r,i)=>`
+  <tr class="${i===0?'best':''}">
+    <td><div class="shopname">${r.name}${i===0?'<span class="lowtag">최저가</span>':''}</div>
+        <div class="shopsub">${r.sub}</div></td>
+    <td class="num">${won(r.price)}</td>
+    <td class="num" style="color:var(--ink-3)">${r.ship?'+'+won(r.ship):'무료'}</td>
+    <td class="num total">${won(r.total)}</td>
+    <td><button class="go">구매하기</button></td>
+  </tr>`).join('');
+
+/* ── 가격 이력 생성 (데모 데이터) ── */
+function history(days){
+  let base = 318000, out = [], seed = 7;
+  const rnd = ()=> (seed = (seed*9301+49297)%233280)/233280;
+  const today = new Date('2026-07-12');
+  for(let i=days-1;i>=0;i--){
+    const d = new Date(today); d.setDate(d.getDate()-i);
+    base += (rnd()-0.52)*3200;
+    if(i===Math.floor(days*0.45)) base -= 14000;      // 시즌 할인
+    if(i===Math.floor(days*0.18)) base += 9000;       // 인상
+    base = Math.max(286000, Math.min(330000, base));
+    out.push({d, p: Math.round(base/1000)*1000});
+  }
+  out[out.length-1].p = 292000;                        // 오늘 = 현재 최저가
+  return out;
+}
+
+const chart = document.getElementById('chart');
+const W=760, H=260, L=54, R=14, T=18, B=28;
+
+function draw(days){
+  const data = history(days);
+  const ps = data.map(d=>d.p);
+  const min = Math.min(...ps), max = Math.max(...ps);
+  const avg = Math.round(ps.reduce((a,b)=>a+b,0)/ps.length);
+  const lo = min - 6000, hi = max + 6000;
+  const x = i => L + i*(W-L-R)/(data.length-1);
+  const y = v => T + (hi-v)*(H-T-B)/(hi-lo);
+
+  const line = data.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(d.p).toFixed(1)}`).join(' ');
+  const area = `${line} L${x(data.length-1).toFixed(1)},${H-B} L${L},${H-B} Z`;
+
+  // y축 눈금 4단계
+  let grid='', axis='';
+  for(let i=0;i<=3;i++){
+    const v = lo + (hi-lo)*i/3, yy = y(v);
+    grid += `<line x1="${L}" x2="${W-R}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}"/>`;
+    axis += `<text x="${L-8}" y="${(yy+3.5).toFixed(1)}" text-anchor="end">${Math.round(v/1000)}만</text>`;
+  }
+  // x축 라벨 4개
+  const fmt = d => `${d.getMonth()+1}.${d.getDate()}`;
+  [0, Math.floor(data.length/3), Math.floor(data.length*2/3), data.length-1].forEach(i=>{
+    axis += `<text x="${x(i).toFixed(1)}" y="${H-8}" text-anchor="${i===0?'start':i===data.length-1?'end':'middle'}">${fmt(data[i].d)}</text>`;
+  });
+
+  const iMin = ps.indexOf(min), iMax = ps.indexOf(max);
+  const mark = (i,v,cls,txt)=>`
+    <circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="4" class="dot-${cls}"/>
+    <text x="${Math.min(Math.max(x(i),L+22),W-R-32).toFixed(1)}" y="${(y(v)+(cls==='low'?18:-9)).toFixed(1)}" text-anchor="middle" class="pt-label ${cls}">${txt} ${v.toLocaleString('ko-KR')}</text>`;
+
+  chart.innerHTML = `
+    <g class="grid">${grid}</g>
+    <path class="area" d="${area}"/>
+    <path class="plot" d="${line}"/>
+    <line class="avgline" x1="${L}" x2="${W-R}" y1="${y(avg).toFixed(1)}" y2="${y(avg).toFixed(1)}"/>
+    ${mark(iMin,min,'low','최저')}
+    ${mark(iMax,max,'high','최고')}
+    <g class="axis">${axis}</g>`;
+
+  const now = 292000;
+  document.getElementById('stats').innerHTML = `
+    <div><div class="k">현재 최저가</div><div class="v num">${won(now)}</div></div>
+    <div><div class="k">${days}일 최저가</div><div class="v low num">${won(min)}</div></div>
+    <div><div class="k">${days}일 최고가</div><div class="v high num">${won(max)}</div></div>
+    <div><div class="k">${days}일 평균가</div><div class="v num">${won(avg)}</div></div>`;
+}
+draw(90);
+
+document.querySelectorAll('.ranges button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('.ranges button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    draw(+b.dataset.range);
+  };
+});
+
+/* ── 후기 ── */
+const DIST = [[5,68],[4,21],[3,7],[2,3],[1,1]];
+document.getElementById('bars').innerHTML = DIST.map(([s,p])=>`
+  <div class="bar">
+    <span>${s}점</span>
+    <div class="track"><div class="fill" style="width:${p}%"></div></div>
+    <span class="pct num">${p}%</span>
+  </div>`).join('');
+
+const REVIEWS = [
+  {star:5, who:'김**', shop:'키즈일레븐', age:'생후 2개월', date:'2026.07.09', photo:true, best:true, cat:['신생아','포토'],
+   shots:['접었을 때','트렁크 수납','시트 평탄'],
+   text:'첫째 때 디럭스를 썼는데 너무 무거워서 둘째는 절충형으로 바꿨습니다. 6.8kg이라 엘리베이터 없는 빌라 2층도 한 손으로 들 수 있어요. 등받이가 165도까지 눕혀져서 신생아 때부터 무리 없이 태웠습니다. 접었을 때 트렁크에 세로로 들어갑니다(아반떼 기준). 사진 같이 올립니다.',
+   tags:['가볍다','등받이 각도 만족','접기 쉬움'], help:214},
+  {star:4, who:'이**', shop:'베이비몰', age:'생후 8개월', date:'2026.07.05', photo:true, best:true, cat:['단점','포토'],
+   shots:['바퀴 크기','캐노피 펼침'],
+   text:'전반적으로 만족하지만 바퀴가 작아서 보도블록 턱에서 덜컹거림이 느껴집니다. 아파트 단지나 마트처럼 평평한 곳 위주면 괜찮고, 산책로가 울퉁불퉁한 동네면 디럭스를 고민해 보시는 게 좋겠습니다. 캐노피는 넓어서 햇빛 가리기는 확실히 좋습니다. 바퀴 크기 비교 사진 첨부합니다.',
+   tags:['턱 넘을 때 덜컹','캐노피 넓음'], help:181},
+  {star:5, who:'박**', shop:'맘스마트', age:'생후 14개월', date:'2026.06.28', photo:true, cat:['돌','포토'],
+   shots:['대면 시트','전면 시트'],
+   text:'돌 지나고도 잘 쓰고 있습니다. 양대면이라 아기가 낯가릴 때는 마주 보게, 바깥 구경하고 싶어 할 때는 앞을 보게 돌려줄 수 있는 게 제일 좋습니다. 시트 분리해서 세탁기에 돌렸는데 줄어들지 않았어요.',
+   tags:['양대면 편함','시트 세탁 가능'], help:97},
+  {star:3, who:'최**', shop:'쿠팡', age:'생후 5개월', date:'2026.06.21', photo:false, cat:['단점'],
+   text:'제품 자체는 무난한데 바구니가 생각보다 작습니다. 기저귀 가방 넣으면 장 본 것을 더 넣기 어려워요. 조립은 10분 정도 걸렸고 설명서가 그림 위주라 이해하기 쉬웠습니다.',
+   tags:['바구니 작음','조립 쉬움'], help:64},
+  {star:5, who:'정**', shop:'키즈일레븐', age:'생후 1개월', date:'2026.06.14', photo:false, cat:['신생아'],
+   text:'출산 선물로 받았습니다. 신생아 때 목 못 가누는 시기에도 완전히 눕혀지니 안심이 됐어요. KC 인증번호 조회해 보니 정상 등록된 제품이었습니다. 다만 여름에는 등판에 땀이 차서 쿨시트를 따로 깔아 주고 있습니다.',
+   tags:['완전 평탄','여름엔 쿨시트 필요'], help:52},
+];
+
+/* 후기 사진 (플레이스홀더 도안) */
+const PHOTO_ART = `<svg width="34%" height="34%" viewBox="0 0 24 24" fill="none" stroke="#9AA3AB" stroke-width="1.1">
+  <rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.4-2h5.2L16 6"/></svg>`;
+
+/* 상단 포토 스트립 */
+const STRIP = ['생후 2개월','트렁크 수납','접었을 때','대면 시트','생후 14개월','+406'];
+document.getElementById('psGrid').innerHTML = STRIP.map((c,i)=>
+  i===STRIP.length-1
+    ? `<figure class="more-ph">${c}<br><span style="font-size:10.5px;font-weight:600">더 보기</span></figure>`
+    : `<figure>${PHOTO_ART}<figcaption>${c}</figcaption></figure>`
+).join('');
+
+const revEl = document.getElementById('reviews');
+function stars(n){ return '★★★★★'.slice(0,n) + '☆☆☆☆☆'.slice(0,5-n); }
+function renderReviews(f='all'){
+  const list = f==='all' ? REVIEWS : REVIEWS.filter(r=>r.cat.includes(f));
+  revEl.innerHTML = list.length ? list.map(r=>`
+    <div class="review ${r.best?'hilight':''}">
+      <div class="rv-top">
+        ${r.best?'<span class="best-tag">BEST</span>':''}
+        <span class="st">${stars(r.star)}</span>
+        <span class="who">${r.who}</span>
+        <span class="chip">${r.shop} 구매확인</span>
+        <span class="chip">${r.age}</span>
+        <time>${r.date}</time>
+      </div>
+      <p class="rv-body">${r.text}</p>
+      ${r.photo ? `<div class="rv-photos">${r.shots.map(s=>`<div title="${s}">${PHOTO_ART}</div>`).join('')}</div>` : ''}
+      <div class="rv-tags">${r.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+      <div class="rv-foot">
+        <button>도움이 됐어요 <b class="num">${r.help}</b></button>
+        <button>신고</button>
+      </div>
+    </div>`).join('')
+    : '<div style="padding:40px 0;text-align:center;color:var(--ink-3);font-size:13.5px">해당하는 후기가 아직 없습니다.</div>';
+}
+renderReviews();
+
+/* 상세정보 펼치기 */
+const wrap = document.getElementById('detailWrap');
+const unfold = document.getElementById('unfold');
+unfold.onclick = ()=>{
+  const open = wrap.classList.toggle('folded') === false;
+  unfold.classList.toggle('open', open);
+  unfold.childNodes[0].nodeValue = open ? '상세정보 접기 ' : '상세정보 펼쳐보기 ';
+  if(!open) document.getElementById('detail').scrollIntoView({behavior:'smooth', block:'start'});
+};
+document.getElementById('revfilter').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#revfilter button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  renderReviews(b.dataset.f);
+});
+
+/* 탭 이동 */
+document.querySelectorAll('.tabs button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById(b.dataset.go).scrollIntoView({behavior:'smooth', block:'start'});
+  };
+});
+</script>
+</body>
+</html>

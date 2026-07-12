@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>관리자 | 베이비프라이스</title>
+<style>
+  :root{
+    --navy:#0F3E6B; --navy-dark:#0A2C4D; --navy-soft:#EEF3F8;
+    --ink:#1B1E21; --ink-2:#4A5158; --ink-3:#767D84;
+    --line:#D8DDE3; --line-2:#E9ECEF;
+    --surface:#F6F8FA; --price:#C0392B; --ok:#1E7B4D; --warn:#B26B00;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    color:var(--ink);background:var(--surface);font-size:14px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-variant-numeric:tabular-nums}
+  button{font:inherit;cursor:pointer}
+  input,select,textarea{font:inherit}
+  kbd{
+    display:inline-block;min-width:19px;text-align:center;
+    border:1px solid var(--line);border-bottom-width:2px;border-radius:3px;
+    background:#fff;color:var(--ink-2);font-size:11px;font-weight:700;
+    padding:1px 5px;font-family:inherit;
+  }
+
+  /* 상단 */
+  .topbar{background:var(--navy);color:#fff;position:sticky;top:0;z-index:30}
+  .topbar .in{max-width:1360px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:26px;height:52px}
+  .topbar .brand{font-weight:800;font-size:15px;letter-spacing:-.02em}
+  .topbar .brand span{font-weight:500;opacity:.65;margin-left:6px;font-size:12px}
+  .topbar nav{display:flex;gap:2px;margin-left:auto}
+  .topbar nav button{
+    background:transparent;border:0;color:#fff;opacity:.7;padding:8px 15px;
+    border-radius:3px;font-size:13.5px;font-weight:600;
+  }
+  .topbar nav button.on{opacity:1;background:rgba(255,255,255,.14)}
+  .topbar .who{font-size:12.5px;opacity:.7;margin-left:20px}
+
+  .page{max-width:1360px;margin:0 auto;padding:22px 20px 60px}
+  .head{display:flex;align-items:flex-end;gap:14px;margin-bottom:16px}
+  .head h1{font-size:20px;letter-spacing:-.03em}
+  .head p{font-size:12.5px;color:var(--ink-3)}
+  .head .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+  .btn{border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:3px;padding:9px 16px;font-size:13px;font-weight:700}
+  .btn:hover{background:var(--navy-dark)}
+  .btn.line{background:#fff;color:var(--navy)}
+  .btn.line:hover{background:var(--navy-soft)}
+  .btn.gray{background:#fff;color:var(--ink-2);border-color:var(--line)}
+  .btn.gray:hover{border-color:var(--ink-2)}
+  .btn.danger{background:#fff;color:var(--price);border-color:#E8C4C0}
+  .btn.danger:hover{background:var(--price);color:#fff;border-color:var(--price)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:4px}
+
+  /* 진행 바 */
+  .progress{display:flex;align-items:center;gap:14px;padding:13px 18px;margin-bottom:14px}
+  .progress .track{flex:1;height:8px;background:var(--line-2);border-radius:2px;overflow:hidden}
+  .progress .fill{height:100%;background:var(--ok);border-radius:2px;transition:width .25s}
+  .progress .t{font-size:13px;font-weight:700;white-space:nowrap}
+  .progress .t b{color:var(--ok)}
+  .progress .est{font-size:12px;color:var(--ink-3);white-space:nowrap}
+
+  /* 매칭 작업대 */
+  .bench{display:grid;grid-template-columns:1fr 1fr;gap:0}
+  @media(max-width:980px){.bench{grid-template-columns:1fr}}
+  .bench .side{padding:20px 22px}
+  .bench .side+.side{border-left:1px solid var(--line-2)}
+  @media(max-width:980px){.bench .side+.side{border-left:0;border-top:1px solid var(--line-2)}}
+  .side h2{font-size:12px;font-weight:800;letter-spacing:.06em;color:var(--ink-3);margin-bottom:12px}
+
+  /* 좌: 수집된 원본 */
+  .raw{border:1px solid var(--line);border-radius:4px;padding:16px 18px;background:var(--surface)}
+  .raw .shop{font-size:11.5px;font-weight:800;color:#fff;background:var(--ink-2);padding:2px 7px;border-radius:2px}
+  .raw .title{font-size:16px;font-weight:700;letter-spacing:-.02em;margin-top:10px;line-height:1.45}
+  .raw .price{font-size:22px;font-weight:800;color:var(--price);margin-top:10px;letter-spacing:-.03em}
+  .raw .price small{font-size:12.5px;color:var(--ink-3);font-weight:600;margin-left:8px}
+  .raw .url{font-size:11.5px;color:var(--ink-3);margin-top:8px;word-break:break-all}
+  .raw .url a{color:var(--navy);text-decoration:underline}
+  .flags{display:flex;gap:5px;margin-top:12px;flex-wrap:wrap}
+  .flag{font-size:11px;font-weight:700;padding:2px 7px;border-radius:2px;border:1px solid}
+  .flag.warn{color:var(--warn);border-color:#E8D5AE;background:#FDF8EE}
+  .flag.bad{color:var(--price);border-color:#E8C4C0;background:#FDF2F1}
+  .flag.info{color:var(--navy);border-color:#C6D8E8;background:var(--navy-soft)}
+
+  /* 우: 후보 */
+  .cand{
+    border:1px solid var(--line);border-radius:4px;padding:13px 15px;margin-bottom:8px;
+    display:flex;align-items:center;gap:12px;background:#fff;cursor:pointer;
+  }
+  .cand:hover{border-color:var(--navy)}
+  .cand.sel{border-color:var(--navy);border-width:2px;background:var(--navy-soft);padding:12px 14px}
+  .cand .k{flex:none}
+  .cand .body{flex:1;min-width:0}
+  .cand .nm{font-size:14px;font-weight:700;letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cand .meta{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .cand .score{flex:none;text-align:right}
+  .cand .score .v{font-size:16px;font-weight:800;letter-spacing:-.02em}
+  .cand .score .v.hi{color:var(--ok)} .cand .score .v.mid{color:var(--warn)} .cand .score .v.lo{color:var(--ink-3)}
+  .cand .score .l{font-size:10.5px;color:var(--ink-3)}
+  .cand.new{border-style:dashed;color:var(--navy)}
+  .cand.new .nm{color:var(--navy)}
+
+  .actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line-2)}
+  .actions .btn{flex:1;padding:12px}
+  .actions .btn b{margin-left:6px}
+  .hint{font-size:12px;color:var(--ink-3);margin-top:10px;display:flex;gap:14px;flex-wrap:wrap}
+
+  .done{padding:60px 20px;text-align:center}
+  .done .big{font-size:19px;font-weight:800;color:var(--ok)}
+  .done p{font-size:13.5px;color:var(--ink-3);margin-top:6px}
+
+  /* 표 */
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  thead th{background:var(--surface);color:var(--ink-2);font-size:11.5px;font-weight:700;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);letter-spacing:.02em}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--line-2)}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#FCFDFE}
+  td .sub{font-size:11.5px;color:var(--ink-3)}
+  .pill{font-size:11px;font-weight:700;padding:2px 7px;border-radius:2px;border:1px solid}
+  .pill.ok{color:var(--ok);border-color:#BFE0CE;background:#F1F8F4}
+  .pill.no{color:var(--price);border-color:#E8C4C0;background:#FDF2F1}
+  .pill.wait{color:var(--warn);border-color:#E8D5AE;background:#FDF8EE}
+  .link{color:var(--navy);font-weight:700;text-decoration:underline;background:none;border:0;padding:0}
+
+  /* 상품 등록 폼 */
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:0 26px;padding:22px}
+  @media(max-width:820px){.form{grid-template-columns:1fr}}
+  .fld{margin-bottom:16px}
+  .fld.wide{grid-column:1/-1}
+  .fld label{display:block;font-size:12.5px;font-weight:700;margin-bottom:5px}
+  .fld label em{font-style:normal;color:var(--price);margin-left:3px}
+  .fld .help{font-size:11.5px;color:var(--ink-3);margin-top:4px;line-height:1.5}
+  .fld input,.fld select,.fld textarea{
+    width:100%;border:1px solid var(--line);border-radius:3px;padding:9px 11px;outline:0;background:#fff;
+  }
+  .fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(15,62,107,.08)}
+  .fld textarea{min-height:74px;resize:vertical}
+  .kcrow{display:flex;gap:8px}
+  .kcrow input{flex:1}
+  .specrow{display:grid;grid-template-columns:150px 1fr auto;gap:7px;margin-bottom:6px}
+  .specrow button{border:1px solid var(--line);background:#fff;border-radius:3px;width:36px;color:var(--ink-3)}
+  .specrow button:hover{border-color:var(--price);color:var(--price)}
+  .addspec{border:1px dashed var(--line);background:#fff;border-radius:3px;padding:8px;width:100%;font-size:12.5px;color:var(--ink-2);font-weight:600}
+  .addspec:hover{border-color:var(--navy);color:var(--navy)}
+  .formfoot{grid-column:1/-1;display:flex;gap:8px;padding-top:16px;border-top:1px solid var(--line-2);margin-top:4px}
+  .formfoot .btn{padding:12px 26px}
+  .formfoot .note{margin-left:auto;font-size:12px;color:var(--ink-3);align-self:center}
+
+  /* 대시보드 */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+  @media(max-width:820px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:4px;padding:16px 18px}
+  .kpi .k{font-size:12px;color:var(--ink-3)}
+  .kpi .v{font-size:25px;font-weight:800;letter-spacing:-.03em;margin-top:2px}
+  .kpi .v.alarm{color:var(--price)}
+  .kpi .d{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .sect-h{font-size:13px;font-weight:800;padding:13px 16px;border-bottom:1px solid var(--line-2);display:flex;align-items:center;gap:8px}
+  .sect-h span{font-weight:500;color:var(--ink-3);font-size:12px}
+
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translate(-50%,16px);opacity:0;
+    background:var(--ink);color:#fff;padding:11px 20px;border-radius:3px;font-size:13px;font-weight:600;
+    transition:.2s;z-index:60;pointer-events:none;
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="in">
+    <div class="brand">베이비프라이스 <span>관리자</span></div>
+    <nav>
+      <button class="on" data-tab="match">매칭 확인 <b id="navCount" class="num"></b></button>
+      <button data-tab="products">상품 등록</button>
+      <button data-tab="dash">수집 현황</button>
+    </nav>
+    <div class="who">운영자 · 오늘 06:00 수집 완료</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ══════════ 매칭 확인 ══════════ -->
+  <div id="tab-match">
+    <div class="head">
+      <div>
+        <h1>매칭 확인</h1>
+        <p>수집기가 확신하지 못한 것만 올라옵니다. 마우스 없이 키보드로 처리하세요.</p>
+      </div>
+      <div class="right">
+        <button class="btn gray" id="skipAll">나중에 하기</button>
+      </div>
+    </div>
+
+    <div class="card progress">
+      <div class="t">오늘 처리 <b class="num" id="doneN">0</b> / <span class="num" id="totalN">0</span>건</div>
+      <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+      <div class="est" id="est">예상 소요 약 0분</div>
+    </div>
+
+    <div class="card" id="bench"></div>
+  </div>
+
+  <!-- ══════════ 상품 등록 ══════════ -->
+  <div id="tab-products" class="hide">
+    <div class="head">
+      <div>
+        <h1>상품 등록</h1>
+        <p>여러 판매처의 같은 물건을 묶는 기준이 되는 <b>표준 상품</b>을 만듭니다.</p>
+      </div>
+      <div class="right">
+        <input id="q" placeholder="상품명·모델명 검색" style="border:1px solid var(--line);border-radius:3px;padding:9px 12px;width:220px">
+        <button class="btn" id="newProduct">+ 새 상품 등록</button>
+      </div>
+    </div>
+
+    <!-- 목록 -->
+    <div class="card" id="prodListCard">
+      <div class="sect-h">등록된 표준 상품 <span id="prodCount"></span></div>
+      <table>
+        <thead><tr>
+          <th style="width:34%">상품명</th><th>모델</th><th>KC 인증</th>
+          <th>연결 판매처</th><th>최저가</th><th>상태</th><th style="width:90px"></th>
+        </tr></thead>
+        <tbody id="prodRows"></tbody>
+      </table>
+    </div>
+
+    <!-- 폼 -->
+    <div class="card hide" id="prodFormCard">
+      <div class="sect-h"><span id="formMode">새 상품 등록</span></div>
+      <div class="form">
+        <div class="fld">
+          <label>카테고리<em>*</em></label>
+          <select id="f_cat">
+            <option value="stroller">유모차</option>
+            <option value="carseat">카시트</option>
+            <option value="bottle">수유·이유식</option>
+            <option value="diaper">기저귀·물티슈</option>
+            <option value="bed">아기침대·매트</option>
+            <option value="bath">목욕·스킨케어</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label>브랜드<em>*</em></label>
+          <input id="f_brand" placeholder="브이핏">
+        </div>
+
+        <div class="fld wide">
+          <label>표준 상품명<em>*</em></label>
+          <input id="f_name" placeholder="브이핏 절충형 유모차 (2026년형)">
+          <div class="help">판매처 원문에 붙은 <b>‘무료배송·사은품증정·특가’ 같은 문구는 빼고</b> 물건 자체만 적으세요. 이 이름이 매칭 정확도를 좌우합니다.</div>
+        </div>
+
+        <div class="fld">
+          <label>모델 코드</label>
+          <input id="f_model" placeholder="VF-2600">
+          <div class="help">매칭 1순위 키입니다. 알면 반드시 넣으세요. 넣는 순간 자동 매칭률이 크게 오릅니다.</div>
+        </div>
+        <div class="fld">
+          <label>KC 안전인증번호<em>*</em></label>
+          <div class="kcrow">
+            <input id="f_kc" placeholder="CB-2025-0148">
+            <button class="btn line" id="kcCheck" style="white-space:nowrap">인증 조회</button>
+          </div>
+          <div class="help" id="kcResult">제품안전정보센터에서 인증 유효성과 리콜 이력을 대조합니다.</div>
+        </div>
+
+        <div class="fld wide">
+          <label>상품 사양</label>
+          <div id="specs"></div>
+          <button class="addspec" id="addSpec">+ 항목 추가</button>
+          <div class="help">상세페이지 사양표에 그대로 나옵니다. 어머니들이 실제로 찾는 항목(무게, 사용 월령, 세탁 가능 여부)을 우선 넣으세요.</div>
+        </div>
+
+        <div class="fld wide">
+          <label>상세 이미지 URL (줄바꿈으로 구분)</label>
+          <textarea id="f_imgs" placeholder="https://cdn.../detail-1.jpg&#10;https://cdn.../detail-2.jpg"></textarea>
+        </div>
+
+        <div class="formfoot">
+          <button class="btn" id="saveProduct">저장</button>
+          <button class="btn gray" id="cancelProduct">취소</button>
+          <div class="note">저장하면 다음 06시 수집부터 이 상품으로 자동 매칭됩니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ 수집 현황 ══════════ -->
+  <div id="tab-dash" class="hide">
+    <div class="head">
+      <div>
+        <h1>수집 현황</h1>
+        <p>배치가 조용히 죽는 것을 막는 화면입니다. 매일 아침 여기부터 보세요.</p>
+      </div>
+      <div class="right"><button class="btn line" id="runNow">지금 즉시 수집</button></div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="k">오늘 수집한 오퍼</div><div class="v num">4,182</div><div class="d">어제 대비 +2.1%</div></div>
+      <div class="kpi"><div class="k">매칭 대기</div><div class="v num alarm" id="kpiPending">6</div><div class="d">쌓이면 최저가가 부정확해집니다</div></div>
+      <div class="kpi"><div class="k">자동 매칭률</div><div class="v num">91.4%</div><div class="d">모델코드 등록이 늘수록 올라감</div></div>
+      <div class="kpi"><div class="k">가격 알림 발송</div><div class="v num">37</div><div class="d">오늘 06:04</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="sect-h">판매처별 수집 결과 <span>2026-07-12 06:00</span></div>
+      <table>
+        <thead><tr><th>판매처</th><th>방식</th><th>수집 건수</th><th>소요</th><th>상태</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td><b>쿠팡</b></td><td>제휴 API</td><td class="num">1,840</td><td class="num">2분 11초</td><td><span class="pill ok">정상</span></td><td class="sub">—</td></tr>
+          <tr><td><b>네이버쇼핑</b></td><td>검색 API</td><td class="num">1,706</td><td class="num">3분 40초</td><td><span class="pill ok">정상</span></td><td class="sub">일일 호출 8,420/25,000</td></tr>
+          <tr><td><b>베이비몰</b></td><td>CSV 피드</td><td class="num">412</td><td class="num">18초</td><td><span class="pill ok">정상</span></td><td class="sub">—</td></tr>
+          <tr><td><b>키즈일레븐</b></td><td>CSV 피드</td><td class="num">224</td><td class="num">11초</td><td><span class="pill ok">정상</span></td><td class="sub">—</td></tr>
+          <tr><td><b>맘스마트</b></td><td>크롤링</td><td class="num">0</td><td class="num">—</td><td><span class="pill no">실패</span></td><td class="sub">robots.txt 수집 불허 → <b>피드 제공 요청 필요</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="sect-h">이상 가격 차단 <span>사람이 확인해야 하는 것들</span></div>
+      <table>
+        <thead><tr><th style="width:42%">수집 원문</th><th>판매처</th><th>이전가</th><th>수집가</th><th>사유</th><th></th></tr></thead>
+        <tbody>
+          <tr>
+            <td>브이핏 유모차 컵홀더 거치대<div class="sub">유모차 카테고리로 잘못 들어옴</div></td>
+            <td>네이버쇼핑</td><td class="num sub">—</td><td class="num" style="color:var(--price);font-weight:700">9,900원</td>
+            <td><span class="pill wait">가격 하한 미달</span></td>
+            <td><button class="link">확인</button></td>
+          </tr>
+          <tr>
+            <td>세이프원 디럭스 유모차 세트<div class="sub">하루 만에 68% 하락</div></td>
+            <td>키즈일레븐</td><td class="num sub">589,000원</td><td class="num" style="color:var(--price);font-weight:700">189,000원</td>
+            <td><span class="pill wait">급락 감지</span></td>
+            <td><button class="link">확인</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══════════ 데모 데이터 (실제로는 GET /admin/pending-matches) ══════════ */
+const QUEUE = [
+  {
+    id: 8821, shop:'쿠팡', price:312000, ship:0,
+    title:'[무료배송] 브이핏 절충형 유모차 2026년형 VF-2600 우비+모기장 증정 정품',
+    url:'https://link.coupang.com/a/xxxxxx',
+    flags:[{t:'모델코드 VF-2600 추출됨', k:'info'}],
+    candidates:[
+      {id:101, name:'브이핏 절충형 유모차 (2026년형)', model:'VF-2600', offers:3, score:0.86},
+      {id:107, name:'브이핏 절충형 유모차 (2025년형)', model:'VF-2500', offers:5, score:0.74},
+    ],
+  },
+  {
+    id: 8822, shop:'네이버쇼핑', price:189000, ship:3000,
+    title:'세이프원 디럭스 유모차 전시상품 A급 리퍼 (박스개봉)',
+    url:'https://smartstore.naver.com/xxxx',
+    flags:[{t:'‘전시·리퍼’ 감지 — 신품과 묶으면 안 됨', k:'bad'}],
+    candidates:[
+      {id:103, name:'세이프원 디럭스 유모차 + 카시트 세트', model:'SF-900', offers:3, score:0.81},
+    ],
+  },
+  {
+    id: 8823, shop:'베이비몰', price:41000, ship:0,
+    title:'모유실감 PPSU 젖병 260ml 3개입 세트 배앓이방지 신생아',
+    url:'https://babymall.kr/p/2210',
+    flags:[{t:'모델코드 없음 — 이름만으로 판단', k:'warn'}],
+    candidates:[
+      {id:210, name:'모유실감 젖병 3개 세트 (PPSU 260ml)', model:'', offers:4, score:0.84},
+      {id:214, name:'모유실감 젖병 2개 세트 (PPSU 260ml)', model:'', offers:2, score:0.79},
+    ],
+  },
+  {
+    id: 8824, shop:'쿠팡', price:9900, ship:0,
+    title:'브이핏 유모차 전용 컵홀더 거치대',
+    url:'https://link.coupang.com/a/yyyyyy',
+    flags:[{t:'가격 하한 미달 — 본품이 아닌 부속품일 가능성', k:'bad'}],
+    candidates:[],
+  },
+];
+
+let idx = 0, done = 0;
+const total = QUEUE.length;
+let sel = 0;   // 선택된 후보 index (-1 = 새 상품)
+
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+
+/* ── 매칭 작업대 ── */
+function renderBench(){
+  const bench = $('#bench');
+
+  if(idx >= total){
+    bench.innerHTML = `<div class="done">
+      <div class="big">오늘 확인할 항목을 모두 처리했습니다</div>
+      <p>총 ${done}건. 이 작업이 쌓여서 최저가의 정확도가 됩니다.</p>
+    </div>`;
+    updateProgress();
+    return;
+  }
+
+  const q = QUEUE[idx];
+  const cands = q.candidates.map((c,i)=>{
+    const cls = c.score>=0.85?'hi':c.score>=0.75?'mid':'lo';
+    return `<div class="cand ${sel===i?'sel':''}" data-i="${i}">
+      <div class="k"><kbd>${i+1}</kbd></div>
+      <div class="body">
+        <div class="nm">${c.name}</div>
+        <div class="meta">${c.model ? '모델 '+c.model+' · ' : '모델 미등록 · '}연결된 판매처 ${c.offers}곳</div>
+      </div>
+      <div class="score">
+        <div class="v ${cls} num">${(c.score*100).toFixed(0)}%</div>
+        <div class="l">유사도</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  bench.innerHTML = `
+    <div class="bench">
+      <div class="side">
+        <h2>수집된 원문</h2>
+        <div class="raw">
+          <span class="shop">${q.shop}</span>
+          <div class="title">${q.title}</div>
+          <div class="price num">${won(q.price)}<small>배송비 ${q.ship?won(q.ship):'무료'} · 결제 ${won(q.price+q.ship)}</small></div>
+          <div class="url">링크 <a href="${q.url}" target="_blank" rel="noopener">${q.url}</a></div>
+          <div class="flags">${q.flags.map(f=>`<span class="flag ${f.k}">${f.t}</span>`).join('')}</div>
+        </div>
+        <div class="hint" style="margin-top:12px">
+          <span>원문은 그대로 보존됩니다. 나중에 매칭이 틀렸을 때 근거가 됩니다.</span>
+        </div>
+      </div>
+
+      <div class="side">
+        <h2>어느 상품입니까?</h2>
+        ${cands || '<div style="font-size:13px;color:var(--ink-3);padding:10px 0 4px">유사한 상품이 없습니다. 새로 등록하거나 제외하세요.</div>'}
+        <div class="cand new ${sel===-1?'sel':''}" data-i="-1">
+          <div class="k"><kbd>N</kbd></div>
+          <div class="body"><div class="nm">새 표준 상품으로 등록</div>
+            <div class="meta">이 물건이 아직 우리 DB에 없을 때</div></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn" id="confirm">확정<b><kbd style="color:#fff;border-color:rgba(255,255,255,.5);background:transparent">Enter</kbd></b></button>
+          <button class="btn danger" id="reject">제외<b><kbd>X</kbd></b></button>
+          <button class="btn gray" id="later">보류<kbd style="margin-left:6px">Space</kbd></button>
+        </div>
+        <div class="hint">
+          <span><kbd>1</kbd><kbd>2</kbd> 후보 선택</span>
+          <span><kbd>Enter</kbd> 확정</span>
+          <span><kbd>X</kbd> 이 상품 아님 (제외)</span>
+          <span><kbd>Space</kbd> 판단 보류</span>
+        </div>
+      </div>
+    </div>`;
+
+  bench.querySelectorAll('.cand').forEach(el=>{
+    el.onclick = ()=>{ sel = +el.dataset.i; renderBench(); };
+  });
+  $('#confirm').onclick = confirmMatch;
+  $('#reject').onclick  = ()=> next('제외했습니다 (이 오퍼는 노출되지 않습니다)');
+  $('#later').onclick   = ()=> next('보류했습니다');
+  updateProgress();
+}
+
+function confirmMatch(){
+  const q = QUEUE[idx];
+  if(sel === -1){
+    toast('새 상품 등록 화면으로 이동합니다');
+    go('products'); $('#newProduct').click();
+    $('#f_name').value = q.title.replace(/\[.*?\]|\(.*?\)|무료배송|증정|정품|특가/g,'').trim();
+    return;
+  }
+  if(!q.candidates[sel]) return toast('후보를 선택하세요');
+  next(`‘${q.candidates[sel].name}’ 에 연결했습니다`);
+}
+
+function next(msg){
+  toast(msg);
+  idx++; done++; sel = 0;
+  renderBench();
+}
+
+function updateProgress(){
+  $('#doneN').textContent = done;
+  $('#totalN').textContent = total;
+  $('#fill').style.width = (done/total*100) + '%';
+  const left = total - done;
+  $('#est').textContent = left ? `남은 ${left}건 · 예상 ${Math.max(1, Math.round(left*0.5))}분` : '완료';
+  $('#navCount').textContent = left ? `(${left})` : '';
+  $('#kpiPending').textContent = left;
+}
+
+/* 키보드 */
+document.addEventListener('keydown', e=>{
+  if($('#tab-match').classList.contains('hide')) return;
+  if(['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
+  if(idx >= total) return;
+  const q = QUEUE[idx];
+
+  if(e.key >= '1' && e.key <= '9'){
+    const i = +e.key - 1;
+    if(q.candidates[i]){ sel = i; renderBench(); }
+  }
+  else if(e.key.toLowerCase() === 'n'){ sel = -1; renderBench(); }
+  else if(e.key === 'Enter'){ e.preventDefault(); confirmMatch(); }
+  else if(e.key.toLowerCase() === 'x'){ next('제외했습니다'); }
+  else if(e.key === ' '){ e.preventDefault(); next('보류했습니다'); }
+});
+
+/* ══════════ 상품 등록 ══════════ */
+const PRODUCTS = [
+  {id:101, name:'브이핏 절충형 유모차 (2026년형)', model:'VF-2600', kc:'CB-2025-0148', offers:4, low:292000, ok:true},
+  {id:103, name:'세이프원 디럭스 유모차 + 카시트 세트', model:'SF-900', kc:'CB-2025-0092', offers:3, low:589000, ok:true},
+  {id:107, name:'브이핏 절충형 유모차 (2025년형)', model:'VF-2500', kc:'CB-2024-1180', offers:5, low:243000, ok:true},
+  {id:210, name:'모유실감 젖병 3개 세트 (PPSU 260ml)', model:'', kc:'', offers:4, low:37900, ok:false},
+];
+
+function renderProducts(){
+  $('#prodCount').textContent = `${PRODUCTS.length}개`;
+  $('#prodRows').innerHTML = PRODUCTS.map(p=>`
+    <tr>
+      <td><b>${p.name}</b><div class="sub">ID ${p.id}</div></td>
+      <td class="num">${p.model || '<span class="sub">미등록</span>'}</td>
+      <td>${p.kc ? `<span class="pill ok">${p.kc}</span>` : '<span class="pill no">인증번호 없음</span>'}</td>
+      <td class="num">${p.offers}곳</td>
+      <td class="num"><b>${won(p.low)}</b></td>
+      <td>${p.ok ? '<span class="pill ok">노출중</span>' : '<span class="pill wait">보완 필요</span>'}</td>
+      <td><button class="link" data-edit="${p.id}">수정</button></td>
+    </tr>`).join('');
+  $('#prodRows').querySelectorAll('[data-edit]').forEach(b=>{
+    b.onclick = ()=>{
+      const p = PRODUCTS.find(x=>x.id == b.dataset.edit);
+      openForm(p);
+    };
+  });
+}
+
+const DEFAULT_SPECS = [['무게',''],['사용 월령',''],['주요 기능',''],['세탁',''],['A/S','']];
+function renderSpecs(rows){
+  $('#specs').innerHTML = rows.map(([k,v],i)=>`
+    <div class="specrow">
+      <input value="${k}" placeholder="항목" data-sk="${i}">
+      <input value="${v}" placeholder="내용 (예: 6.8kg)" data-sv="${i}">
+      <button data-rm="${i}">✕</button>
+    </div>`).join('');
+  $('#specs').querySelectorAll('[data-rm]').forEach(b=>{
+    b.onclick = ()=>{ rows.splice(+b.dataset.rm,1); renderSpecs(rows); };
+  });
+}
+let specRows = DEFAULT_SPECS.map(r=>[...r]);
+
+function openForm(p){
+  $('#prodListCard').classList.add('hide');
+  $('#prodFormCard').classList.remove('hide');
+  $('#formMode').textContent = p ? `상품 수정 — ${p.name}` : '새 상품 등록';
+  $('#f_name').value  = p?.name  || '';
+  $('#f_model').value = p?.model || '';
+  $('#f_kc').value    = p?.kc    || '';
+  $('#f_brand').value = p ? p.name.split(' ')[0] : '';
+  $('#kcResult').textContent = '제품안전정보센터에서 인증 유효성과 리콜 이력을 대조합니다.';
+  $('#kcResult').style.color = '';
+  specRows = DEFAULT_SPECS.map(r=>[...r]);
+  renderSpecs(specRows);
+}
+function closeForm(){
+  $('#prodFormCard').classList.add('hide');
+  $('#prodListCard').classList.remove('hide');
+}
+
+$('#newProduct').onclick = ()=> openForm(null);
+$('#cancelProduct').onclick = closeForm;
+$('#addSpec').onclick = ()=>{ specRows.push(['','']); renderSpecs(specRows); };
+
+$('#kcCheck').onclick = ()=>{
+  const v = $('#f_kc').value.trim();
+  const r = $('#kcResult');
+  if(!v){ r.textContent = '인증번호를 입력하세요.'; r.style.color = 'var(--price)'; return; }
+  r.textContent = '조회 중…'; r.style.color = 'var(--ink-3)';
+  setTimeout(()=>{
+    r.innerHTML = '<b style="color:var(--ok)">유효한 인증번호입니다.</b> 어린이제품 안전확인 · 리콜 이력 없음 (2026.07.12 대조)';
+    r.style.color = '';
+  }, 700);
+};
+
+$('#saveProduct').onclick = ()=>{
+  const name = $('#f_name').value.trim();
+  const kc   = $('#f_kc').value.trim();
+  if(!name) return toast('표준 상품명을 입력하세요');
+  if(!kc)   return toast('KC 인증번호는 필수입니다. 아기용품이라 예외를 두지 않습니다.');
+  PRODUCTS.unshift({
+    id: Math.floor(Math.random()*900+300),
+    name, model:$('#f_model').value.trim(), kc, offers:0, low:0, ok:true,
+  });
+  renderProducts(); closeForm();
+  toast('저장했습니다. 다음 06시 수집부터 자동 매칭됩니다');
+};
+
+$('#q').oninput = e=>{
+  const v = e.target.value.trim();
+  document.querySelectorAll('#prodRows tr').forEach(tr=>{
+    tr.style.display = !v || tr.textContent.includes(v) ? '' : 'none';
+  });
+};
+
+/* ══════════ 공통 ══════════ */
+function go(tab){
+  document.querySelectorAll('.topbar nav button').forEach(b=>b.classList.toggle('on', b.dataset.tab===tab));
+  ['match','products','dash'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hide', t!==tab);
+  });
+}
+document.querySelectorAll('.topbar nav button').forEach(b=> b.onclick = ()=> go(b.dataset.tab));
+$('#skipAll').onclick = ()=> toast('내일 다시 알려드립니다. 다만 매칭이 밀리면 최저가가 부정확해집니다');
+$('#runNow').onclick  = ()=> toast('수집을 시작했습니다. 약 6분 소요됩니다');
+
+let tt;
+const toastEl = $('#toast');
+function toast(m){
+  toastEl.textContent = m; toastEl.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(()=>toastEl.classList.remove('on'), 2000);
+}
+
+renderBench();
+renderProducts();
+</script>
+</body>
+</html>

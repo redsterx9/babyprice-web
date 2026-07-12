@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>베이비프라이스 · 모바일</title>
+<style>
+  :root{
+    --navy:#0F3E6B; --navy-dark:#0A2C4D; --navy-soft:#EEF3F8;
+    --ink:#1B1E21; --ink-2:#4A5158; --ink-3:#767D84;
+    --line:#E3E7EB; --line-2:#EEF1F4;
+    --surface:#F6F8FA; --price:#C0392B; --ok:#1E7B4D; --warn:#B26B00;
+    --tap:48px;                     /* 최소 터치 크기. 한 손·엄지 조작 기준 */
+    --safe-b:env(safe-area-inset-bottom, 0px);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    background:#DFE3E8;color:var(--ink);line-height:1.55;
+    display:flex;justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-variant-numeric:tabular-nums}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+  /* 데스크톱에선 폰 프레임 안에, 모바일에선 꽉 차게 */
+  .phone{
+    width:100%;max-width:420px;min-height:100vh;background:#fff;position:relative;
+    overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.12);
+  }
+  @media(min-width:520px){ .phone{margin:0;border-left:1px solid #C9CFD6;border-right:1px solid #C9CFD6} }
+
+  .view{display:none;padding-bottom:calc(72px + var(--safe-b))}
+  .view.on{display:block}
+
+  /* ───── 공통 헤더 ───── */
+  .appbar{
+    position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;gap:8px;padding:10px 12px;min-height:56px;
+  }
+  .appbar .back{width:var(--tap);height:var(--tap);display:grid;place-items:center;margin-left:-8px}
+  .appbar .logo{font-size:17px;font-weight:800;color:var(--navy);letter-spacing:-.03em}
+  .appbar .ttl{font-size:16px;font-weight:700;letter-spacing:-.02em;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .appbar .icon{width:var(--tap);height:var(--tap);display:grid;place-items:center;color:var(--ink-2)}
+
+  .searchbox{
+    display:flex;align-items:center;gap:8px;margin:0 12px 10px;
+    border:1.5px solid var(--navy);border-radius:6px;padding:11px 13px;
+  }
+  .searchbox input{border:0;outline:0;font:inherit;width:100%;font-size:15px}
+  .searchbox input::placeholder{color:var(--ink-3)}
+
+  /* 갱신 안내 — 신뢰의 시작점 */
+  .stamp{
+    display:flex;align-items:center;gap:6px;background:var(--navy-soft);
+    padding:8px 14px;font-size:11.5px;color:var(--ink-2);
+  }
+  .stamp b{color:var(--navy)}
+
+  /* ───── 카테고리 칩 ───── */
+  .chips{display:flex;gap:7px;overflow-x:auto;padding:12px 12px 10px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{
+    flex:none;border:1px solid var(--line);border-radius:999px;padding:9px 15px;
+    font-size:13.5px;font-weight:600;color:var(--ink-2);background:#fff;white-space:nowrap;
+  }
+  .chip.on{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:700}
+
+  /* ───── 정렬 바 ───── */
+  .sortbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 14px;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line);
+    font-size:12.5px;color:var(--ink-3);
+  }
+  .sortbar b{color:var(--ink);font-weight:700}
+  .sortbar .sel{display:flex;align-items:center;gap:4px;font-weight:700;color:var(--ink);height:var(--tap);padding:0 4px}
+
+  /* ───── 상품 카드 (세로 스크롤) ───── */
+  .item{display:flex;gap:12px;padding:16px 14px;border-bottom:1px solid var(--line-2)}
+  .item:active{background:var(--surface)}
+  .thumb{
+    width:96px;height:96px;flex:none;border:1px solid var(--line);border-radius:6px;
+    background:var(--surface);display:grid;place-items:center;position:relative;
+  }
+  .thumb .kc{
+    position:absolute;left:0;bottom:0;right:0;background:rgba(30,123,77,.92);color:#fff;
+    font-size:9.5px;font-weight:700;text-align:center;padding:2px 0;border-radius:0 0 5px 5px;
+  }
+  .meta{flex:1;min-width:0}
+  .meta .nm{font-size:14.5px;font-weight:700;letter-spacing:-.02em;line-height:1.4}
+  .meta .sp{font-size:11.5px;color:var(--ink-3);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .meta .rv{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+  .meta .rv .st{color:#E8A33D;font-weight:700}
+  .meta .pr{display:flex;align-items:baseline;gap:6px;margin-top:8px}
+  .meta .pr .v{font-size:19px;font-weight:800;color:var(--price);letter-spacing:-.03em}
+  .meta .pr .v small{font-size:13px}
+  .meta .shop{font-size:11.5px;color:var(--ink-2);margin-top:2px}
+  .meta .shop b{color:var(--ink);font-weight:700}
+  .meta .shop .inc{color:var(--ink-3)}
+  .drop{
+    display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:800;
+    color:var(--ok);background:#F1F8F4;border:1px solid #BFE0CE;border-radius:3px;padding:1px 5px;
+  }
+
+  /* ───── 상세 ───── */
+  .hero{height:260px;background:var(--surface);display:grid;place-items:center;border-bottom:1px solid var(--line)}
+  .dots{display:flex;gap:5px;justify-content:center;padding:10px 0;border-bottom:1px solid var(--line-2)}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--line);display:block}
+  .dots i.on{background:var(--navy);width:16px;border-radius:3px}
+
+  .dinfo{padding:16px 14px}
+  .dinfo h1{font-size:19px;font-weight:800;letter-spacing:-.03em;line-height:1.4}
+  .dinfo .sub{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+  .dinfo .sub .st{color:#E8A33D;font-weight:700}
+
+  .kcbar{
+    display:flex;align-items:center;gap:8px;margin:12px 14px 0;
+    border:1px solid #BFE0CE;background:#F1F8F4;border-radius:6px;padding:11px 12px;font-size:12px;color:var(--ink-2);
+  }
+  .kcbar b{color:var(--ok);font-weight:700;flex:none}
+
+  .lowcard{margin:12px 14px 0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .lowcard .top{padding:14px}
+  .lowcard .lbl{font-size:11.5px;color:var(--ink-3)}
+  .lowcard .big{font-size:30px;font-weight:800;color:var(--price);letter-spacing:-.04em;line-height:1.2}
+  .lowcard .big small{font-size:17px}
+  .lowcard .at{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+  .lowcard .at b{color:var(--ink)}
+  .verdict{display:flex;align-items:center;gap:9px;background:#F1F8F4;border-top:1px solid #DCEDE3;padding:11px 14px}
+  .verdict .tag{font-size:11px;font-weight:800;color:#fff;background:var(--ok);padding:3px 8px;border-radius:3px;flex:none}
+  .verdict p{font-size:12.5px;color:var(--ink-2);line-height:1.45}
+  .verdict.wait{background:#FDF8EE;border-top-color:#EFE0C4}
+  .verdict.wait .tag{background:var(--warn)}
+
+  /* 미니 가격 그래프 — 모바일에선 축 라벨을 줄이고 '결론'을 크게 */
+  .chart{margin:12px 14px 0;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .chart .ch{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line-2)}
+  .chart .ch h3{font-size:13.5px;font-weight:700}
+  .chart .rg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .chart .rg button{padding:6px 10px;font-size:11.5px;font-weight:700;color:var(--ink-3);background:#fff;min-width:44px}
+  .chart .rg button+button{border-left:1px solid var(--line)}
+  .chart .rg button.on{background:var(--navy);color:#fff}
+  .chart svg{width:100%;height:150px;display:block;padding:8px 0}
+  .chart .st3{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line-2)}
+  .chart .st3 div{padding:10px;text-align:center;border-right:1px solid var(--line-2)}
+  .chart .st3 div:last-child{border-right:0}
+  .chart .st3 .k{font-size:10.5px;color:var(--ink-3)}
+  .chart .st3 .v{font-size:14px;font-weight:800;margin-top:1px;letter-spacing:-.02em}
+  .chart .st3 .v.lo{color:var(--ok)} .chart .st3 .v.hi{color:var(--price)}
+
+  .alert-cta{
+    margin:10px 14px 0;display:flex;align-items:center;gap:10px;
+    border:1px solid var(--line);border-radius:6px;padding:12px 14px;
+  }
+  .alert-cta .t{font-size:12.5px;color:var(--ink-2);flex:1}
+  .alert-cta .t b{color:var(--navy)}
+  .alert-cta button{
+    flex:none;border:1px solid var(--navy);color:var(--navy);border-radius:4px;
+    padding:9px 14px;font-size:12.5px;font-weight:700;min-height:var(--tap);
+  }
+
+  /* 아코디언 — 모바일에선 다 펼치면 스크롤이 지옥이 된다 */
+  .acc{margin-top:16px;border-top:8px solid var(--surface)}
+  .acc details{border-bottom:1px solid var(--line-2)}
+  .acc summary{
+    list-style:none;padding:17px 14px;font-size:15px;font-weight:700;
+    display:flex;align-items:center;justify-content:space-between;min-height:var(--tap);
+  }
+  .acc summary::-webkit-details-marker{display:none}
+  .acc summary span{font-size:12.5px;color:var(--ink-3);font-weight:600}
+  .acc summary::after{content:'';width:8px;height:8px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);margin-left:10px;transition:.15s}
+  .acc details[open] summary::after{transform:rotate(-135deg)}
+  .acc .body{padding:0 14px 20px}
+
+  table.spec{width:100%;border-collapse:collapse;font-size:13px;border-top:1px solid var(--ink)}
+  table.spec th{background:var(--surface);text-align:left;font-weight:600;color:var(--ink-2);width:88px;padding:10px 10px;border-bottom:1px solid var(--line-2);font-size:12px}
+  table.spec td{padding:10px;border-bottom:1px solid var(--line-2);color:var(--ink-2)}
+
+  .panel{border:1px solid var(--line-2);border-radius:6px;padding:26px 16px;text-align:center;margin-bottom:8px;background:var(--surface)}
+  .panel .eb{font-size:10.5px;font-weight:800;letter-spacing:.12em;color:var(--navy)}
+  .panel h4{font-size:17px;font-weight:800;letter-spacing:-.03em;margin-top:7px;line-height:1.4}
+  .panel p{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+  .panel svg{margin-top:14px;max-width:100%}
+
+  /* 후기 */
+  .rvsum{display:flex;align-items:center;gap:16px;border:1px solid var(--line);border-radius:6px;padding:14px}
+  .rvsum .n{font-size:32px;font-weight:800;letter-spacing:-.04em;line-height:1}
+  .rvsum .s{color:#E8A33D;font-size:13px;letter-spacing:1px}
+  .rvsum .bars{flex:1;display:flex;flex-direction:column;gap:4px}
+  .rvsum .bar{display:grid;grid-template-columns:26px 1fr 30px;gap:7px;align-items:center;font-size:11px;color:var(--ink-3)}
+  .rvsum .track{height:6px;background:var(--line-2);border-radius:2px;overflow:hidden}
+  .rvsum .fill{height:100%;background:var(--navy)}
+
+  .photos{display:flex;gap:7px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+  .photos::-webkit-scrollbar{display:none}
+  .photos figure{
+    flex:none;width:88px;height:88px;border:1px solid var(--line);border-radius:5px;
+    background:var(--surface);display:grid;place-items:center;position:relative;
+  }
+  .photos figcaption{position:absolute;left:0;right:0;bottom:0;background:rgba(27,30,33,.7);color:#fff;font-size:9.5px;padding:2px;text-align:center}
+  .photos .more{background:var(--navy-soft);color:var(--navy);font-weight:800;font-size:12px}
+
+  .rvfilter{display:flex;gap:6px;overflow-x:auto;padding:12px 0;scrollbar-width:none}
+  .rvfilter::-webkit-scrollbar{display:none}
+  .rvfilter button{flex:none;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:12.5px;font-weight:600;color:var(--ink-2);background:#fff}
+  .rvfilter button.on{border-color:var(--navy);background:var(--navy-soft);color:var(--navy);font-weight:700}
+
+  .rv{padding:15px 0;border-bottom:1px solid var(--line-2)}
+  .rv .top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3)}
+  .rv .best{font-size:10px;font-weight:800;color:#fff;background:var(--navy);padding:1px 5px;border-radius:2px}
+  .rv .st{color:#E8A33D;font-weight:700;letter-spacing:1px}
+  .rv .who{color:var(--ink-2);font-weight:600}
+  .rv .cp{border:1px solid var(--line);border-radius:2px;padding:1px 5px;font-size:10.5px}
+  .rv .txt{font-size:13.5px;color:var(--ink-2);margin-top:8px;line-height:1.7}
+  .rv .shots{display:flex;gap:6px;margin-top:9px}
+  .rv .shots div{width:70px;height:70px;border:1px solid var(--line);border-radius:4px;background:var(--surface);display:grid;place-items:center}
+  .rv .help{margin-top:10px;border:1px solid var(--line);border-radius:4px;padding:7px 12px;font-size:12px;color:var(--ink-2);min-height:38px}
+
+  /* ───── 하단 고정 CTA (상세) ───── */
+  .cta{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
+    background:#fff;border-top:1px solid var(--line);z-index:30;
+    padding:10px 12px calc(10px + var(--safe-b));display:flex;gap:8px;align-items:center;
+  }
+  .cta .fav{width:var(--tap);height:var(--tap);border:1px solid var(--line);border-radius:6px;display:grid;place-items:center;flex:none;color:var(--ink-3)}
+  .cta .est{
+    flex:none;border:1px solid var(--navy);color:var(--navy);border-radius:6px;
+    padding:0 14px;height:var(--tap);font-size:13.5px;font-weight:700;
+  }
+  .cta .buy{
+    flex:1;background:var(--navy);color:#fff;border-radius:6px;height:var(--tap);
+    font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .cta .buy:active{background:var(--navy-dark)}
+  .cta .buy .p{font-size:13px;opacity:.8;font-weight:600}
+
+  /* ───── 판매처 비교 시트 (바텀시트) ───── */
+  .scrim{position:fixed;inset:0;background:rgba(20,24,28,.45);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .sheet{
+    position:fixed;left:50%;bottom:0;transform:translate(-50%,100%);width:100%;max-width:420px;
+    background:#fff;border-radius:14px 14px 0 0;z-index:41;transition:transform .25s cubic-bezier(.2,.8,.2,1);
+    max-height:82vh;display:flex;flex-direction:column;padding-bottom:var(--safe-b);
+  }
+  .sheet.on{transform:translate(-50%,0)}
+  .sheet .grab{width:36px;height:4px;background:var(--line);border-radius:2px;margin:10px auto 4px}
+  .sheet .sh{padding:8px 16px 12px;border-bottom:1px solid var(--line-2)}
+  .sheet .sh h3{font-size:16px;font-weight:800;letter-spacing:-.02em}
+  .sheet .sh p{font-size:12px;color:var(--ink-3);margin-top:3px}
+  .sheet .list{overflow-y:auto;padding:6px 0 14px}
+  .srow{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line-2)}
+  .srow.best{background:#FDF6F5}
+  .srow .l{flex:1;min-width:0}
+  .srow .sn{font-size:14.5px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .srow .low{font-size:10px;font-weight:800;color:#fff;background:var(--price);padding:1px 5px;border-radius:2px}
+  .srow .sd{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .srow .r{text-align:right;flex:none}
+  .srow .tp{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .srow .br{font-size:11px;color:var(--ink-3);margin-top:1px}
+  .srow .go{
+    flex:none;border:1px solid var(--navy);color:var(--navy);border-radius:5px;
+    padding:0 13px;height:40px;font-size:13px;font-weight:700;
+  }
+  .srow.best .go{background:var(--navy);color:#fff}
+  .sheet .note{font-size:11px;color:var(--ink-3);padding:12px 16px;background:var(--surface);line-height:1.6}
+
+  /* ───── 견적함 ───── */
+  .cartrow{display:flex;gap:11px;padding:14px;border-bottom:1px solid var(--line-2);align-items:center}
+  .cartrow .t{width:60px;height:60px;flex:none;border:1px solid var(--line);border-radius:5px;background:var(--surface);display:grid;place-items:center}
+  .cartrow .m{flex:1;min-width:0}
+  .cartrow .m .n{font-size:13.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cartrow .m .s{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .cartrow .m .p{font-size:15px;font-weight:800;color:var(--price);margin-top:3px}
+  .cartrow .x{width:40px;height:40px;flex:none;display:grid;place-items:center;color:var(--ink-3)}
+  .cartsum{padding:16px 14px;border-top:8px solid var(--surface)}
+  .cartsum .ln{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:var(--ink-2)}
+  .cartsum .tot{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--ink);margin-top:10px;padding-top:12px}
+  .cartsum .tot b{font-size:14px;font-weight:800}
+  .cartsum .tot .v{font-size:24px;font-weight:800;color:var(--price);letter-spacing:-.03em}
+  .cmp{border:1px solid var(--line);border-radius:6px;margin-top:14px;overflow:hidden}
+  .cmp div{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-size:13px;border-bottom:1px solid var(--line-2)}
+  .cmp div:last-child{border-bottom:0}
+  .cmp div.win{background:#F1F8F4}
+  .cmp .k{font-weight:700} .cmp .k small{display:block;font-weight:500;color:var(--ink-3);font-size:11px;margin-top:1px}
+  .cmp .v{font-weight:800;white-space:nowrap} .cmp .win .v{color:var(--ok)}
+  .empty{padding:70px 20px;text-align:center;color:var(--ink-3);font-size:13.5px}
+
+  /* ───── 하단 탭바 ───── */
+  .tabbar{
+    position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:420px;
+    background:#fff;border-top:1px solid var(--line);display:flex;z-index:25;
+    padding-bottom:var(--safe-b);
+  }
+  .tabbar button{flex:1;padding:8px 0 7px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-3);min-height:58px;position:relative}
+  .tabbar button.on{color:var(--navy)}
+  .tabbar .lb{font-size:10.5px;font-weight:700}
+  .tabbar .badge{
+    position:absolute;top:4px;left:calc(50% + 7px);background:var(--price);color:#fff;
+    font-size:9.5px;font-weight:800;min-width:16px;height:16px;border-radius:8px;
+    display:grid;place-items:center;padding:0 4px;
+  }
+  .tabbar.hide{display:none}
+
+  .toast{
+    position:fixed;left:50%;bottom:calc(80px + var(--safe-b));transform:translate(-50%,10px);opacity:0;
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:22px;font-size:13px;font-weight:600;
+    z-index:50;transition:.2s;pointer-events:none;white-space:nowrap;
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ══════════ 홈 / 목록 ══════════ -->
+  <div class="view on" id="v-home">
+    <div class="appbar">
+      <div class="logo">베이비프라이스</div>
+      <div style="flex:1"></div>
+      <button class="icon" aria-label="알림">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      </button>
+    </div>
+    <div class="searchbox">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#767D84" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input placeholder="유모차, 카시트, 기저귀 검색">
+    </div>
+    <div class="stamp">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0F3E6B" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span><b>오늘 06:00</b> 기준 · 판매처 5곳의 배송비 포함 가격입니다</span>
+    </div>
+
+    <div class="chips" id="chips"></div>
+    <div class="sortbar">
+      <span>전체 <b class="num">128</b>개</span>
+      <button class="sel" id="sortBtn">낮은 가격순
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <!-- ══════════ 상세 ══════════ -->
+  <div class="view" id="v-detail">
+    <div class="appbar">
+      <button class="back" id="back">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div class="ttl">브이핏 절충형 유모차</div>
+      <button class="icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+      </button>
+    </div>
+
+    <div class="hero">
+      <svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#9AA3AB" stroke-width="1"><circle cx="7.5" cy="19" r="1.8"/><circle cx="17" cy="19" r="1.8"/><path d="M3 4h2.2l2.4 10.5h9.6L19.5 7H6.2"/></svg>
+    </div>
+    <div class="dots"><i class="on"></i><i></i><i></i><i></i></div>
+
+    <div class="dinfo">
+      <h1>브이핏 절충형 유모차 (2026년형)</h1>
+      <div class="sub"><span class="st">★ 4.6</span> 후기 <b class="num">2,841</b>건 · 브이핏 VF-2600</div>
+    </div>
+
+    <div class="kcbar">
+      <b>KC 안전인증</b>
+      <span>CB-2025-0148 · 리콜 이력 없음 (07.06 대조)</span>
+    </div>
+
+    <div class="lowcard">
+      <div class="top">
+        <div class="lbl">배송비 포함 최저가</div>
+        <div class="big num">292,000<small>원</small></div>
+        <div class="at"><b>키즈일레븐</b> · 289,000원 + 배송비 3,000원</div>
+      </div>
+      <div class="verdict">
+        <span class="tag">지금 사도 좋아요</span>
+        <p>90일 평균보다 <b class="num">11,400원</b> 저렴하고,<br>최저가와는 3,000원 차이입니다.</p>
+      </div>
+    </div>
+
+    <div class="chart">
+      <div class="ch">
+        <h3>가격 변동</h3>
+        <div class="rg">
+          <button data-r="30">1개월</button>
+          <button class="on" data-r="90">3개월</button>
+          <button data-r="180">6개월</button>
+        </div>
+      </div>
+      <svg id="mchart" viewBox="0 0 380 150" preserveAspectRatio="none"></svg>
+      <div class="st3" id="mstats"></div>
+    </div>
+
+    <div class="alert-cta">
+      <div class="t"><b>가격 알림</b><br>원하는 금액이 되면 문자로 알려드려요</div>
+      <button id="alertBtn">알림 받기</button>
+    </div>
+
+    <div class="acc">
+      <details>
+        <summary>상품 사양 <span>10개 항목</span></summary>
+        <div class="body">
+          <table class="spec">
+            <tr><th>종류</th><td>절충형 유모차</td></tr>
+            <tr><th>사용 월령</th><td>신생아 ~ 36개월 (15kg 이하)</td></tr>
+            <tr><th>무게</th><td>6.8kg</td></tr>
+            <tr><th>접은 크기</th><td>45 × 30 × 62cm</td></tr>
+            <tr><th>주요 기능</th><td>양대면 · 3단 등받이(165°) · 서스펜션</td></tr>
+            <tr><th>시트</th><td>분리 세탁 가능</td></tr>
+            <tr><th>A/S</th><td>본체 2년</td></tr>
+          </table>
+        </div>
+      </details>
+
+      <details>
+        <summary>상세 정보 <span>제조사 제공</span></summary>
+        <div class="body">
+          <div class="panel">
+            <div class="eb">V-FIT VF-2600</div>
+            <h4>한 손으로 접고,<br>한 손으로 드는 6.8kg</h4>
+            <p>엘리베이터 없는 빌라도, 지하철 계단도.</p>
+            <svg viewBox="0 0 340 150" fill="none" width="100%">
+              <g stroke="#0F3E6B" stroke-width="2.2" stroke-linecap="round">
+                <path d="M95 40 L140 105"/><path d="M140 105 L225 105"/><path d="M195 42 L140 105"/><path d="M95 40 L198 40"/><path d="M225 105 L245 65"/>
+              </g>
+              <circle cx="133" cy="120" r="13" stroke="#0F3E6B" stroke-width="2.2" fill="#fff"/>
+              <circle cx="233" cy="120" r="13" stroke="#0F3E6B" stroke-width="2.2" fill="#fff"/>
+              <path d="M262 66 L305 66" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="4 3"/>
+              <text x="284" y="59" text-anchor="middle" font-size="13" font-weight="800" fill="#C0392B" font-family="sans-serif">6.8kg</text>
+            </svg>
+          </div>
+          <div class="panel">
+            <div class="eb">FLAT RECLINE 165°</div>
+            <h4>신생아도 눕혀서,<br>돌 아기는 앉혀서</h4>
+            <p>등받이 3단 조절 · 최대 165°</p>
+            <svg viewBox="0 0 340 110" fill="none" width="100%">
+              <g stroke="#0F3E6B" stroke-width="2" stroke-linecap="round">
+                <path d="M40 90 L140 90"/><path d="M40 90 L40 32"/><path d="M210 90 L300 90"/><path d="M210 90 L186 38"/>
+              </g>
+              <path d="M40 32 A 58 58 0 0 1 70 82" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="4 3"/>
+              <text x="86" y="42" font-size="12" font-weight="800" fill="#C0392B" font-family="sans-serif">165°</text>
+              <text x="232" y="34" font-size="12" font-weight="800" fill="#0F3E6B" font-family="sans-serif">100°</text>
+            </svg>
+          </div>
+          <div class="panel" style="background:var(--navy);border-color:var(--navy)">
+            <div class="eb" style="color:#9FC4E4">SAFETY</div>
+            <h4 style="color:#fff">안전은 옵션이 아닙니다</h4>
+            <p style="color:#B9CCDE">KC 어린이제품 안전확인 · 5점식 벨트 · 이중 잠금 브레이크</p>
+          </div>
+        </div>
+      </details>
+
+      <details open>
+        <summary>구매 후기 <span class="num">2,841건</span></summary>
+        <div class="body">
+          <div class="rvsum">
+            <div style="text-align:center">
+              <div class="n num">4.6</div>
+              <div class="s">★★★★★</div>
+            </div>
+            <div class="bars" id="bars"></div>
+          </div>
+
+          <div class="photos" id="photos"></div>
+          <div class="rvfilter" id="rvfilter">
+            <button class="on" data-f="all">전체</button>
+            <button data-f="포토">사진</button>
+            <button data-f="신생아">신생아</button>
+            <button data-f="돌">돌 이후</button>
+            <button data-f="단점">아쉬운 점</button>
+          </div>
+          <div id="reviews"></div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- ══════════ 견적함 ══════════ -->
+  <div class="view" id="v-cart">
+    <div class="appbar"><div class="ttl">출산 준비물 견적함</div></div>
+    <div id="cartBody"></div>
+  </div>
+
+  <!-- ══════════ 알림 ══════════ -->
+  <div class="view" id="v-alert">
+    <div class="appbar"><div class="ttl">가격 알림</div></div>
+    <div class="empty">
+      가격 알림을 신청한 상품이 없습니다.<br>
+      상품 상세에서 <b style="color:var(--navy)">알림 받기</b>를 눌러 보세요.
+    </div>
+  </div>
+
+  <!-- 하단 CTA (상세에서만) -->
+  <div class="cta" id="cta" style="display:none">
+    <button class="fav" aria-label="찜">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 10-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 000-7.8z"/></svg>
+    </button>
+    <button class="est" id="addCart">견적함</button>
+    <button class="buy" id="openSheet">
+      <span>판매처 4곳 비교</span>
+      <span class="p num">292,000원~</span>
+    </button>
+  </div>
+
+  <!-- 하단 탭바 -->
+  <div class="tabbar" id="tabbar">
+    <button class="on" data-v="home">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1z"/></svg>
+      <span class="lb">홈</span>
+    </button>
+    <button data-v="cat">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span class="lb">카테고리</span>
+    </button>
+    <button data-v="alert">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+      <span class="lb">가격알림</span>
+    </button>
+    <button data-v="cart">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 4h2l2.6 11h10l2.4-8H6.4"/><circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/></svg>
+      <span class="lb">견적함</span>
+      <span class="badge num" id="cartBadge" style="display:none">0</span>
+    </button>
+    <button data-v="my">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      <span class="lb">내 정보</span>
+    </button>
+  </div>
+</div>
+
+<!-- 판매처 비교 바텀시트 -->
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <div class="sh">
+    <h3>판매처 비교</h3>
+    <p>판매가가 아니라 <b>배송비를 더한 결제 금액</b> 순으로 정렬합니다</p>
+  </div>
+  <div class="list" id="sellerList"></div>
+  <div class="note">제주·도서산간 추가 배송비는 판매처 정책에 따릅니다. 베이비프라이스는 통신판매중개자로 거래의 당사자가 아닙니다.</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const won = n => n.toLocaleString('ko-KR') + '원';
+const $ = s => document.querySelector(s);
+
+/* ── 데이터 ── */
+const CATS = ['유모차','카시트','기저귀','수유·이유식','아기침대','목욕용품'];
+const ITEMS = [
+  {id:1, nm:'브이핏 절충형 유모차 (2026년형)', sp:'6.8kg · 신생아~36개월 · 양대면', rate:4.6, rv:2841,
+   price:289000, ship:3000, shop:'키즈일레븐', shops:4, drop:9},
+  {id:2, nm:'라이트고 초경량 휴대용 유모차', sp:'4.2kg · 기내반입 · 원터치 폴딩', rate:4.4, rv:1526,
+   price:165900, ship:3000, shop:'키즈일레븐', shops:4, drop:0},
+  {id:3, nm:'데일리 절충형 유모차 (기본형)', sp:'7.4kg · 3개월~36개월 · 통풍시트', rate:4.2, rv:3407,
+   price:198000, ship:0, shop:'맘스마트', shops:4, drop:4},
+  {id:4, nm:'세이프원 디럭스 유모차 + 카시트 세트', sp:'11kg · 트래블시스템 · ISOFIX', rate:4.7, rv:963,
+   price:589000, ship:0, shop:'키즈일레븐', shops:3, drop:0},
+];
+const SELLERS = [
+  {n:'키즈일레븐', p:289000, s:3000, d:'A/S 2년 · 무료 조립 안내'},
+  {n:'베이비몰',  p:298000, s:0,    d:'무료배송 · 30일 무료반품'},
+  {n:'맘스마트',  p:305000, s:0,    d:'무료배송 · 적립 3%'},
+  {n:'쿠팡',      p:312000, s:0,    d:'로켓배송 · 당일출고'},
+].map(x=>({...x, t:x.p+x.s})).sort((a,b)=>a.t-b.t);
+
+const cart = [];
+
+/* ── 홈 ── */
+$('#chips').innerHTML = CATS.map((c,i)=>`<button class="chip ${i===0?'on':''}">${c}</button>`).join('');
+$('#chips').addEventListener('click', e=>{
+  const b = e.target.closest('.chip'); if(!b) return;
+  document.querySelectorAll('.chip').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+});
+
+const ICON = `<svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#9AA3AB" stroke-width="1.1"><circle cx="7.5" cy="19" r="1.8"/><circle cx="17" cy="19" r="1.8"/><path d="M3 4h2.2l2.4 10.5h9.6L19.5 7H6.2"/></svg>`;
+const CAM = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#9AA3AB" stroke-width="1.1"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.4-2h5.2L16 6"/></svg>`;
+
+$('#list').innerHTML = ITEMS.map(it=>`
+  <div class="item" data-id="${it.id}">
+    <div class="thumb">${ICON}<div class="kc">KC 인증</div></div>
+    <div class="meta">
+      <div class="nm">${it.nm}</div>
+      <div class="sp">${it.sp}</div>
+      <div class="rv"><span class="st">★ ${it.rate}</span> 후기 ${it.rv.toLocaleString('ko-KR')}</div>
+      <div class="pr">
+        <span class="v num">${(it.price+it.ship).toLocaleString('ko-KR')}<small>원</small></span>
+        ${it.drop ? `<span class="drop">▼ ${it.drop}%</span>` : ''}
+      </div>
+      <div class="shop"><b>${it.shop}</b> · 판매처 ${it.shops}곳
+        <span class="inc">· ${it.ship ? '배송비 포함' : '무료배송'}</span></div>
+    </div>
+  </div>`).join('');
+
+$('#list').addEventListener('click', e=>{
+  const el = e.target.closest('.item'); if(!el) return;
+  go('detail'); window.scrollTo(0,0);
+});
+
+/* ── 미니 그래프 ── */
+function hist(days){
+  let base = 318000, out = [], seed = 7;
+  const rnd = ()=> (seed = (seed*9301+49297)%233280)/233280;
+  for(let i=days-1;i>=0;i--){
+    base += (rnd()-0.52)*3200;
+    if(i===Math.floor(days*0.45)) base -= 14000;
+    if(i===Math.floor(days*0.18)) base += 9000;
+    base = Math.max(286000, Math.min(330000, base));
+    out.push(Math.round(base/1000)*1000);
+  }
+  out[out.length-1] = 292000;
+  return out;
+}
+function drawChart(days){
+  const p = hist(days), W=380, H=150, L=8, R=8, T=14, B=10;
+  const min=Math.min(...p), max=Math.max(...p), avg=Math.round(p.reduce((a,b)=>a+b,0)/p.length);
+  const lo=min-5000, hi=max+5000;
+  const x=i=>L+i*(W-L-R)/(p.length-1), y=v=>T+(hi-v)*(H-T-B)/(hi-lo);
+  const line = p.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const iMin = p.indexOf(min);
+
+  $('#mchart').innerHTML = `
+    <path d="${line} L${W-R},${H-B} L${L},${H-B} Z" fill="#EEF3F8"/>
+    <path d="${line}" fill="none" stroke="#0F3E6B" stroke-width="2" stroke-linejoin="round"/>
+    <line x1="${L}" x2="${W-R}" y1="${y(avg).toFixed(1)}" y2="${y(avg).toFixed(1)}" stroke="#767D84" stroke-width="1" stroke-dasharray="4 3"/>
+    <circle cx="${x(iMin).toFixed(1)}" cy="${y(min).toFixed(1)}" r="3.5" fill="#1E7B4D"/>
+    <circle cx="${x(p.length-1).toFixed(1)}" cy="${y(p[p.length-1]).toFixed(1)}" r="4.5" fill="#C0392B" stroke="#fff" stroke-width="2"/>`;
+
+  $('#mstats').innerHTML = `
+    <div><div class="k">${days}일 최저</div><div class="v lo num">${won(min)}</div></div>
+    <div><div class="k">평균</div><div class="v num">${won(avg)}</div></div>
+    <div><div class="k">${days}일 최고</div><div class="v hi num">${won(max)}</div></div>`;
+}
+drawChart(90);
+document.querySelectorAll('.rg button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('.rg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); drawChart(+b.dataset.r);
+  };
+});
+
+/* ── 후기 ── */
+$('#bars').innerHTML = [[5,68],[4,21],[3,7],[2,3],[1,1]].map(([s,p])=>`
+  <div class="bar"><span>${s}점</span><div class="track"><div class="fill" style="width:${p}%"></div></div><span>${p}%</span></div>`).join('');
+
+$('#photos').innerHTML =
+  ['생후 2개월','트렁크','접었을 때','대면시트','생후 14개월'].map(c=>
+    `<figure>${CAM}<figcaption>${c}</figcaption></figure>`).join('')
+  + `<figure class="more">+406</figure>`;
+
+const REVIEWS = [
+  {s:5, who:'김**', shop:'키즈일레븐', age:'생후 2개월', best:true, cat:['신생아','포토'], shots:3,
+   t:'첫째 때 디럭스 쓰다가 너무 무거워서 바꿨어요. 6.8kg이라 엘리베이터 없는 빌라 2층도 한 손으로 듭니다. 165도까지 눕혀져서 신생아 때부터 태웠고, 접으면 아반떼 트렁크에 세로로 들어가요.', h:214},
+  {s:4, who:'이**', shop:'베이비몰', age:'생후 8개월', best:true, cat:['단점','포토'], shots:2,
+   t:'만족하지만 바퀴가 작아서 보도블록 턱에서 덜컹거립니다. 아파트·마트 위주면 괜찮고, 산책로가 울퉁불퉁하면 디럭스를 고민해 보세요. 캐노피는 확실히 넓습니다.', h:181},
+  {s:5, who:'박**', shop:'맘스마트', age:'생후 14개월', best:false, cat:['돌','포토'], shots:2,
+   t:'돌 지나고도 잘 씁니다. 낯가릴 땐 마주 보게, 구경하고 싶어 하면 앞을 보게 돌려줄 수 있는 게 제일 좋아요. 시트 세탁기에 돌렸는데 안 줄었습니다.', h:97},
+  {s:3, who:'최**', shop:'쿠팡', age:'생후 5개월', best:false, cat:['단점'], shots:0,
+   t:'무난한데 바구니가 작습니다. 기저귀 가방 넣으면 장 본 걸 더 못 넣어요. 조립은 10분 걸렸고 설명서는 그림 위주라 쉬웠습니다.', h:64},
+];
+const stars = n => '★★★★★'.slice(0,n)+'☆☆☆☆☆'.slice(0,5-n);
+function renderRv(f='all'){
+  const list = f==='all' ? REVIEWS : REVIEWS.filter(r=>r.cat.includes(f));
+  $('#reviews').innerHTML = list.length ? list.map(r=>`
+    <div class="rv">
+      <div class="top">
+        ${r.best?'<span class="best">BEST</span>':''}
+        <span class="st">${stars(r.s)}</span>
+        <span class="who">${r.who}</span>
+        <span class="cp">${r.shop} 구매확인</span>
+        <span class="cp">${r.age}</span>
+      </div>
+      <p class="txt">${r.t}</p>
+      ${r.shots ? `<div class="shots">${Array(r.shots).fill(`<div>${CAM}</div>`).join('')}</div>` : ''}
+      <button class="help">도움이 됐어요 <b class="num">${r.h}</b></button>
+    </div>`).join('')
+  : '<div style="padding:36px 0;text-align:center;color:var(--ink-3);font-size:13px">해당하는 후기가 없습니다.</div>';
+}
+renderRv();
+$('#rvfilter').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  document.querySelectorAll('#rvfilter button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); renderRv(b.dataset.f);
+});
+
+/* ── 판매처 시트 ── */
+$('#sellerList').innerHTML = SELLERS.map((s,i)=>`
+  <div class="srow ${i===0?'best':''}">
+    <div class="l">
+      <div class="sn">${s.n}${i===0?'<span class="low">최저가</span>':''}</div>
+      <div class="sd">${s.d}</div>
+    </div>
+    <div class="r">
+      <div class="tp num">${won(s.t)}</div>
+      <div class="br num">${won(s.p)} ${s.s?'+ 배송 '+won(s.s):'· 무료배송'}</div>
+    </div>
+    <button class="go">구매</button>
+  </div>`).join('');
+
+function sheet(on){
+  $('#sheet').classList.toggle('on', on);
+  $('#scrim').classList.toggle('on', on);
+  document.body.style.overflow = on ? 'hidden' : '';
+}
+$('#openSheet').onclick = ()=> sheet(true);
+$('#scrim').onclick = ()=> sheet(false);
+
+/* ── 견적함 ── */
+function renderCart(){
+  const badge = $('#cartBadge');
+  badge.style.display = cart.length ? 'grid' : 'none';
+  badge.textContent = cart.length;
+
+  if(!cart.length){
+    $('#cartBody').innerHTML = `<div class="empty">담은 상품이 없습니다.<br>여러 항목을 담으면 <b style="color:var(--navy)">배송비를 포함한<br>최저 조합</b>을 계산해 드려요.</div>`;
+    return;
+  }
+  const goods = cart.reduce((a,b)=>a+b.price,0);
+  const shipSplit = 3000;                       // 나눠 담기: 무료배송 못 채운 몰 1곳
+  const split = goods + shipSplit;
+  const one = Math.round(goods * 1.045);        // 한 곳에서 다 사면 상품값이 비쌈
+
+  $('#cartBody').innerHTML =
+    cart.map((c,i)=>`
+      <div class="cartrow">
+        <div class="t">${ICON}</div>
+        <div class="m">
+          <div class="n">${c.nm}</div>
+          <div class="s">${c.shop} 최저</div>
+          <div class="p num">${won(c.price)}</div>
+        </div>
+        <button class="x" data-i="${i}">✕</button>
+      </div>`).join('')
+    + `<div class="cartsum">
+        <div class="ln"><span>상품 금액 (${cart.length}개)</span><b class="num">${won(goods)}</b></div>
+        <div class="ln"><span>배송비</span><b class="num">${won(shipSplit)}</b></div>
+        <div class="tot"><b>최종 결제액</b><span class="v num">${won(split)}</span></div>
+
+        <div class="cmp">
+          <div class="win">
+            <div class="k">최저가 조합으로 나눠 담기 👍<small>${[...new Set(cart.map(c=>c.shop))].join(' + ')}</small></div>
+            <div class="v num">${won(split)}</div>
+          </div>
+          <div>
+            <div class="k">한 곳에서 전부 구매<small>쿠팡 · 무료배송</small></div>
+            <div class="v num">${won(one)}</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#F1F8F4;border:1px solid #BFE0CE;border-radius:6px;padding:11px 13px;display:flex;justify-content:space-between;font-size:13px;font-weight:700">
+          <span>나눠 담아 아낀 금액</span><b class="num" style="color:var(--ok)">${won(one-split)}</b>
+        </div>
+      </div>`;
+
+  $('#cartBody').querySelectorAll('[data-i]').forEach(b=>{
+    b.onclick = ()=>{ cart.splice(+b.dataset.i,1); renderCart(); toast('견적함에서 뺐습니다'); };
+  });
+}
+renderCart();
+
+$('#addCart').onclick = ()=>{
+  if(cart.find(c=>c.id===1)) return toast('이미 견적함에 있습니다');
+  cart.push({id:1, nm:'브이핏 절충형 유모차 (2026년형)', price:292000, shop:'키즈일레븐'});
+  renderCart();
+  toast('견적함에 담았습니다');
+};
+$('#alertBtn').onclick = ()=> toast('가격이 내려가면 문자로 알려드릴게요');
+
+/* ── 화면 전환 ── */
+function go(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  const map = {home:'v-home', detail:'v-detail', cart:'v-cart', alert:'v-alert', cat:'v-home', my:'v-home'};
+  document.getElementById(map[v] || 'v-home').classList.add('on');
+
+  const isDetail = v === 'detail';
+  $('#cta').style.display = isDetail ? 'flex' : 'none';
+  $('#tabbar').classList.toggle('hide', isDetail);   // 상세에선 탭바를 숨기고 구매 CTA에 자리를 내준다
+
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('on', b.dataset.v===v));
+  window.scrollTo(0,0);
+}
+$('#back').onclick = ()=> go('home');
+document.querySelectorAll('.tabbar button').forEach(b=>{
+  b.onclick = ()=>{
+    if(['cat','my'].includes(b.dataset.v)) return toast('준비 중입니다');
+    go(b.dataset.v);
+  };
+});
+$('#sortBtn').onclick = ()=> toast('정렬: 낮은 가격순 · 인기순 · 후기순');
+
+let tt;
+function toast(m){
+  const el = $('#toast');
+  el.textContent = m; el.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('on'), 1800);
+}
+</script>
+</body>
+</html>
