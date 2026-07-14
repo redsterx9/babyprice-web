@@ -5,422 +5,354 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>출산 준비물 체크리스트 | 베이비프라이스</title>
 <style>
-  :root{
-    --navy:#0F3E6B; --navy-dark:#0A2C4D; --navy-soft:#EEF3F8;
-    --ink:#1B1E21; --ink-2:#4A5158; --ink-3:#767D84;
-    --line:#E3E7EB; --line-2:#EEF1F4;
-    --surface:#F6F8FA; --price:#C0392B; --ok:#1E7B4D; --warn:#B26B00;
-    --tap:48px; --safe-b:env(safe-area-inset-bottom, 0px);
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{
-    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
-    background:#DFE3E8;color:var(--ink);line-height:1.55;font-size:15px;
-    display:flex;justify-content:center;-webkit-font-smoothing:antialiased;
-  }
-  .num{font-variant-numeric:tabular-nums}
-  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
-  input{font:inherit}
-  .app{width:100%;max-width:460px;min-height:100vh;background:#fff;padding-bottom:calc(90px + var(--safe-b));box-shadow:0 0 40px rgba(0,0,0,.1)}
+@font-face{font-family:'BMJUA';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_twelve@1.0/BMJUA.woff') format('woff');font-display:swap}
+:root{
+  --green:#03C75A; --green-dark:#02B152; --green-soft:#EAF9F0;
+  --ink:#111214; --ink-2:#4E5561; --ink-3:#8E949E; --ink-4:#B6BBC2;
+  --line:#EDEFF2; --line-2:#F5F6F8;
+  --red:#FF4B4B; --carrot:#FF6F0F; --gift:#7B5BD6; --deal:#F5A623;
+  --tap:48px; --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+  background:#E5E7EA;color:var(--ink);font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;display:flex;justify-content:center}
+.num{font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.jua{font-family:'BMJUA','Pretendard',sans-serif;font-weight:400}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input{font:inherit}
+.app{width:100%;max-width:440px;background:#fff;min-height:100vh;padding-bottom:calc(80px + var(--safe-b))}
+.bar8{height:8px;background:var(--line-2)}
 
-  /* ── 헤더 ── */
-  .bar{
-    position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);
-    display:flex;align-items:center;gap:8px;padding:10px 12px;min-height:56px;
-  }
-  .bar .back{width:var(--tap);height:var(--tap);display:grid;place-items:center;margin-left:-8px;color:var(--ink-2)}
-  .bar .ttl{font-size:16.5px;font-weight:800;letter-spacing:-.02em}
+.top{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;padding:8px 10px;min-height:52px}
+.top .back{width:40px;height:40px;display:grid;place-items:center;color:var(--ink-2)}
+.top .ttl{font-size:16px;font-weight:800}
 
-  /* ── 주차 카드 ── */
-  .week{background:var(--navy);color:#fff;padding:20px 16px 18px}
-  .week .lbl{font-size:11.5px;opacity:.7;letter-spacing:.04em}
-  .week .big{display:flex;align-items:baseline;gap:8px;margin-top:3px}
-  .week .big b{font-size:33px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
-  .week .big span{font-size:14px;opacity:.8}
-  .week .dday{margin-left:auto;font-size:13px;opacity:.85;font-weight:600}
-  .week .edit{
-    margin-top:14px;display:flex;align-items:center;gap:8px;
-    background:rgba(255,255,255,.12);border-radius:6px;padding:10px 12px;font-size:13px;
-  }
-  .week .edit input{
-    background:transparent;border:0;outline:0;color:#fff;font-size:14px;font-weight:700;
-    width:130px;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:2px;
-  }
-  .week .edit input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.7}
-  .week .edit span{opacity:.75;font-size:12px}
+/* 주차 */
+.wk{background:linear-gradient(135deg,#03C75A,#0FA968);color:#fff;padding:18px 16px;position:relative;overflow:hidden}
+.wk::after{content:'';position:absolute;right:-24px;top:-24px;width:110px;height:110px;background:rgba(255,255,255,.09);border-radius:50%}
+.wk .lb{font-size:11.5px;opacity:.85}
+.wk .big{display:flex;align-items:baseline;gap:7px;margin-top:2px;position:relative;z-index:1}
+.wk .big b{font-size:32px;line-height:1.1}
+.wk .big span{font-size:14px;opacity:.9}
+.wk .dd{margin-left:auto;font-size:13px;opacity:.9;font-weight:600}
+.wk .edit{margin-top:12px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);
+  border-radius:8px;padding:9px 12px;font-size:12.5px;position:relative;z-index:1}
+.wk .edit input{background:transparent;border:0;outline:0;color:#fff;font-size:13.5px;font-weight:700;width:132px}
+.wk .edit input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.8}
 
-  /* ── 진행 ── */
-  .prog{padding:16px;border-bottom:8px solid var(--surface)}
-  .prog .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
-  .prog .t{font-size:14px;font-weight:800}
-  .prog .t small{color:var(--ink-3);font-weight:600;margin-left:5px;font-size:12px}
-  .prog .pct{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-.02em}
-  .prog .track{height:9px;background:var(--line-2);border-radius:3px;overflow:hidden}
-  .prog .fill{height:100%;background:var(--navy);border-radius:3px;transition:width .3s}
-  .prog .money{
-    display:flex;gap:0;margin-top:14px;border:1px solid var(--line);border-radius:6px;overflow:hidden;
-  }
-  .prog .money div{flex:1;padding:11px 12px;border-right:1px solid var(--line-2)}
-  .prog .money div:last-child{border-right:0}
-  .prog .money .k{font-size:11px;color:var(--ink-3)}
-  .prog .money .v{font-size:15px;font-weight:800;letter-spacing:-.02em;margin-top:1px}
-  .prog .money .v.spent{color:var(--ink)}
-  .prog .money .v.left{color:var(--price)}
+/* 진행 */
+.prog{padding:16px 14px}
+.prog .r{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.prog .t{font-size:14px;font-weight:800}
+.prog .t small{color:var(--ink-3);font-weight:600;margin-left:5px;font-size:12px}
+.prog .pct{font-size:19px;font-weight:800;color:var(--green)}
+.prog .track{height:9px;background:var(--line);border-radius:5px;overflow:hidden}
+.prog .fill{height:100%;background:var(--green);border-radius:5px;transition:width .3s}
+.money{display:flex;margin-top:13px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.money div{flex:1;padding:10px 12px;border-right:1px solid var(--line)}
+.money div:last-child{border-right:0}
+.money .k{font-size:11px;color:var(--ink-3)}
+.money .v{font-size:15px;font-weight:800;margin-top:1px}
+.money .v.left{color:var(--red)}
+.money .v.saved{color:var(--gift)}
 
-  /* ── 섹션 ── */
-  .sec{border-bottom:8px solid var(--surface)}
-  .sec-h{display:flex;align-items:center;gap:9px;padding:16px 16px 10px}
-  .sec-h .dot{width:9px;height:9px;border-radius:50%;flex:none}
-  .sec-h h2{font-size:16px;font-weight:800;letter-spacing:-.02em}
-  .sec-h .cnt{font-size:12px;color:var(--ink-3);margin-left:auto;font-weight:600}
-  .sec-h .now .dot{background:var(--price)}
-  .sec-note{font-size:12.5px;color:var(--ink-3);padding:0 16px 12px;line-height:1.6}
+/* 섹션 */
+.sech{display:flex;align-items:center;gap:8px;padding:16px 14px 8px}
+.sech .dot{width:8px;height:8px;border-radius:50%;flex:none}
+.sech h2{font-size:16.5px}
+.sech .cnt{margin-left:auto;font-size:12px;color:var(--ink-3);font-weight:600}
+.sech .d-now{background:var(--red)} .sech .d-soon{background:var(--deal)}
+.sech .d-later{background:var(--ink-4)} .sech .d-never{background:var(--gift)}
+.secn{font-size:12px;color:var(--ink-3);padding:0 14px 10px;line-height:1.65}
 
-  .dot.now{background:var(--price)} .dot.soon{background:var(--warn)}
-  .dot.later{background:var(--ink-3)} .dot.after{background:var(--navy)}
+/* 항목 */
+.it{display:flex;gap:11px;padding:13px 14px;border-top:1px solid var(--line);align-items:flex-start}
+.it.done{background:var(--line-2)}
+.it.done .nm{text-decoration:line-through;color:var(--ink-3)}
+.chk{width:24px;height:24px;flex:none;border:2px solid var(--line);border-radius:7px;
+  display:grid;place-items:center;background:#fff;margin-top:1px}
+.chk svg{opacity:0}
+.it.done .chk{background:var(--green);border-color:var(--green)}
+.it.done .chk svg{opacity:1}
+.bd{flex:1;min-width:0}
+.nmrow{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nm{font-size:15px;font-weight:700}
+.tag{font-size:10px;font-weight:800;padding:2px 6px;border-radius:3px;flex:none}
+.tag.must{background:var(--red);color:#fff}
+.tag.opt{border:1px solid var(--line);color:var(--ink-3)}
+.tag.gift{background:#F1EDFC;color:var(--gift);border:1px solid #DDD2F5}
+.tag.used{background:#FFF6EE;color:var(--carrot);border:1px solid #FFE0C7}
+.tag.deal{background:#FFF8E8;color:#B8791A;border:1px solid #FBE4B8}
+.why{font-size:12.5px;color:var(--ink-2);margin-top:5px;line-height:1.7}
+.why b{color:var(--ink);font-weight:700}
+.qty{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+.qty b{color:var(--ink-2);font-weight:700}
+.buy{display:flex;align-items:center;gap:7px;margin-top:9px;flex-wrap:wrap}
+.buy .p{font-size:15.5px;font-weight:800;color:var(--ink)}
+.buy .p small{font-size:11px;color:var(--ink-3);font-weight:600;margin-left:3px}
+.buy .go{border:1px solid var(--green);color:var(--green);border-radius:6px;padding:0 12px;
+  height:36px;font-size:12.5px;font-weight:700}
+.buy .go:active{background:var(--green);color:#fff}
+.buy .bell{border:1px solid var(--line);color:var(--ink-2);border-radius:6px;padding:0 11px;
+  height:36px;font-size:12.5px;font-weight:600}
+.buy .bell.on{border-color:var(--green);color:var(--green);background:var(--green-soft);font-weight:700}
+.hint{margin-top:8px;font-size:12px;border-radius:6px;padding:7px 9px;line-height:1.6;font-weight:600}
+.hint.gift{background:#F7F4FE;border:1px solid #E4DBF8;color:var(--gift)}
+.hint.used{background:#FFF6EE;border:1px solid #FFE0C7;color:var(--carrot)}
+.hint.deal{background:#FFF8E8;border:1px solid #FBE4B8;color:#B8791A}
 
-  /* ── 항목 ── */
-  .it{display:flex;gap:12px;padding:14px 16px;border-top:1px solid var(--line-2);align-items:flex-start}
-  .it.done{background:var(--surface)}
-  .it.done .nm{text-decoration:line-through;color:var(--ink-3)}
-  .chk{
-    width:26px;height:26px;flex:none;border:2px solid var(--line);border-radius:6px;
-    display:grid;place-items:center;margin-top:1px;background:#fff;
-  }
-  .chk svg{opacity:0}
-  .it.done .chk{background:var(--ok);border-color:var(--ok)}
-  .it.done .chk svg{opacity:1}
-  .body{flex:1;min-width:0}
-  .nmrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .nm{font-size:15px;font-weight:700;letter-spacing:-.02em}
-  .tag{font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:3px;border:1px solid;flex:none}
-  .tag.must{color:var(--price);border-color:#E8C4C0;background:#FDF2F1}
-  .tag.opt{color:var(--ink-3);border-color:var(--line);background:#fff}
-  .why{font-size:12.5px;color:var(--ink-2);margin-top:5px;line-height:1.6}
-  .why b{color:var(--navy);font-weight:700}
-  .qty{font-size:12px;color:var(--ink-3);margin-top:4px}
-  .qty b{color:var(--ink-2);font-weight:700}
-  .buy{display:flex;align-items:center;gap:9px;margin-top:10px;flex-wrap:wrap}
-  .buy .p{font-size:16px;font-weight:800;color:var(--price);letter-spacing:-.02em}
-  .buy .p small{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-left:3px}
-  .buy .go{
-    border:1px solid var(--navy);color:var(--navy);border-radius:5px;
-    padding:0 12px;height:36px;font-size:12.5px;font-weight:700;
-  }
-  .buy .go:active{background:var(--navy);color:#fff}
-  .buy .bell{
-    border:1px solid var(--line);color:var(--ink-2);border-radius:5px;
-    padding:0 11px;height:36px;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:5px;
-  }
-  .buy .bell.on{border-color:var(--ok);color:var(--ok);background:#F1F8F4;font-weight:700}
+/* 사지 마세요 */
+.skip{padding:16px 14px 22px}
+.skip h2{font-size:17px}
+.skip .s{font-size:12.5px;color:var(--ink-3);margin-top:5px;line-height:1.65}
+.skip ul{list-style:none;margin-top:12px}
+.skip li{border:1px solid var(--line);border-radius:9px;padding:12px 13px;margin-bottom:7px;font-size:12.5px;color:var(--ink-2);line-height:1.7}
+.skip li b{display:block;color:var(--ink);font-size:14px;margin-bottom:2px;font-weight:700}
+.honest{margin-top:12px;background:var(--green-soft);border:1px solid #BFE7CF;border-radius:9px;
+  padding:13px;font-size:12.5px;color:var(--ink-2);line-height:1.8}
+.honest b{color:#128F4A;font-weight:800}
 
-  /* ── 사지 마세요 ── */
-  .skip{padding:16px}
-  .skip h2{font-size:16px;font-weight:800;letter-spacing:-.02em}
-  .skip .sub{font-size:12.5px;color:var(--ink-3);margin-top:5px;line-height:1.6}
-  .skip ul{list-style:none;margin-top:12px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
-  .skip li{padding:13px 14px;border-bottom:1px solid var(--line-2);font-size:13.5px}
-  .skip li:last-child{border-bottom:0}
-  .skip li b{font-weight:700;display:block;margin-bottom:2px}
-  .skip li span{font-size:12.5px;color:var(--ink-3);line-height:1.6}
-  .skip .honest{
-    margin-top:14px;background:var(--navy-soft);border:1px solid #C6D8E8;border-radius:6px;
-    padding:13px 14px;font-size:12.5px;color:var(--ink-2);line-height:1.7;
-  }
-  .skip .honest b{color:var(--navy)}
-
-  /* ── 하단 요약 바 ── */
-  .fbar{
-    position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:460px;
-    background:#fff;border-top:1px solid var(--line);z-index:30;
-    padding:11px 14px calc(11px + var(--safe-b));display:flex;align-items:center;gap:12px;
-  }
-  .fbar .l{flex:1;min-width:0}
-  .fbar .k{font-size:11.5px;color:var(--ink-3)}
-  .fbar .v{font-size:19px;font-weight:800;color:var(--price);letter-spacing:-.03em}
-  .fbar .v small{font-size:12px;color:var(--ink-3);font-weight:600;margin-left:5px}
-  .fbar .btn{
-    flex:none;background:var(--navy);color:#fff;border-radius:6px;height:var(--tap);
-    padding:0 18px;font-size:14px;font-weight:800;
-  }
-  .fbar .btn:active{background:var(--navy-dark)}
-
-  .toast{
-    position:fixed;left:50%;bottom:calc(88px + var(--safe-b));transform:translate(-50%,10px);opacity:0;
-    background:var(--ink);color:#fff;padding:11px 18px;border-radius:22px;font-size:13px;font-weight:600;
-    z-index:50;transition:.2s;pointer-events:none;max-width:90%;text-align:center;
-  }
-  .toast.on{opacity:1;transform:translate(-50%,0)}
+/* 하단 */
+.fbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:440px;
+  background:#fff;border-top:1px solid var(--line);z-index:40;
+  padding:10px 14px calc(10px + var(--safe-b));display:flex;align-items:center;gap:12px}
+.fbar .l{flex:1;min-width:0}
+.fbar .k{font-size:11.5px;color:var(--ink-3)}
+.fbar .v{font-size:19px;font-weight:800}
+.fbar .v small{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-left:5px}
+.fbar .btn{flex:none;background:var(--green);color:#fff;border-radius:8px;height:var(--tap);
+  padding:0 18px;font-size:14.5px}
+.toast{position:fixed;left:50%;bottom:calc(84px + var(--safe-b));transform:translate(-50%,10px);opacity:0;
+  background:rgba(17,18,20,.92);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;
+  z-index:60;transition:.2s;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 <div class="app">
 
-  <div class="bar">
-    <button class="back">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
-    </button>
-    <div class="ttl">출산 준비물 체크리스트</div>
+  <div class="top">
+    <button class="back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg></button>
+    <div class="ttl jua">출산 준비물 체크리스트</div>
   </div>
 
-  <!-- 주차 -->
-  <div class="week">
-    <div class="lbl">임신 주차</div>
-    <div class="big">
-      <b class="num" id="wk">32</b><span>주차</span>
-      <span class="dday num" id="dday">출산까지 56일</span>
-    </div>
+  <div class="wk">
+    <div class="lb">임신 주차</div>
+    <div class="big"><b class="jua num" id="w">32</b><span>주차</span>
+      <span class="dd num" id="dd">출산까지 56일</span></div>
     <label class="edit">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" opacity=".8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
-      <span>출산예정일</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" opacity=".85"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      <span style="opacity:.8">출산예정일</span>
       <input type="date" id="due" value="2026-09-06">
     </label>
   </div>
 
-  <!-- 진행 -->
   <div class="prog">
-    <div class="row">
-      <div class="t">준비 진행률 <small id="cntTxt">0 / 0</small></div>
+    <div class="r">
+      <div class="t">준비 진행률 <small id="cnt">0 / 0</small></div>
       <div class="pct num" id="pct">0%</div>
     </div>
     <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
     <div class="money">
-      <div><div class="k">지금까지 준비</div><div class="v spent num" id="spent">0원</div></div>
+      <div><div class="k">지금까지 준비</div><div class="v num" id="spent">0원</div></div>
       <div><div class="k">남은 예상 비용</div><div class="v left num" id="left">0원</div></div>
+      <div><div class="k">안 사도 될 금액</div><div class="v saved num" id="saved">0원</div></div>
     </div>
   </div>
 
-  <div id="sections"></div>
+  <div id="secs"></div>
 
-  <!-- 사지 마세요 -->
+  <div class="bar8"></div>
+
   <div class="skip">
-    <h2>지금 안 사도 되는 것</h2>
-    <p class="sub">초보 엄마가 가장 많이 후회하는 항목입니다. 준비물 목록에 있다고 다 사야 하는 건 아닙니다.</p>
+    <h2 class="jua">이건 사지 마세요</h2>
+    <p class="s">실제 출산 준비 엑셀 200여 건을 보고 정리했어요. 목록에 있다고 다 사야 하는 건 아니에요.</p>
     <ul>
-      <li><b>신생아용 신발</b><span>걷지 않는 아기에겐 필요 없습니다. 사진 찍을 때 한 번 신기고 끝나는 경우가 대부분입니다.</span></li>
-      <li><b>보행기</b><span>대한소아과학회는 사용을 권장하지 않습니다. 안전사고 위험이 있고 보행 발달에도 도움이 되지 않습니다.</span></li>
-      <li><b>신생아 옷 대량 구매</b><span>3개월이면 못 입습니다. 50~60 사이즈는 최소한만. 출산 선물로 가장 많이 들어오는 품목이기도 합니다.</span></li>
-      <li><b>젖병 소독기</b><span>끓는 물 소독으로 충분합니다. 아기가 태어난 뒤 필요하다고 느끼면 그때 사도 늦지 않습니다.</span></li>
-      <li><b>고가 아기침대</b><span>많은 아기가 첫 몇 달을 부모 곁에서 잡니다. 안 쓰고 중고로 파는 경우가 흔합니다.</span></li>
+      <li><b>보행기</b>대한소아과학회가 사용을 권장하지 않아요. 안전사고 위험이 있고 보행 발달에도 도움이 안 돼요.</li>
+      <li><b>신생아용 신발</b>걷지 않는 아기에겐 필요 없어요. 사진 한 번 찍고 끝나는 경우가 대부분이에요.</li>
+      <li><b>젖병 소독기</b>끓는 물 소독으로 충분해요. 필요하다고 느끼시면 그때 사셔도 늦지 않아요. (중고도 많아요)</li>
+      <li><b>고가 아기침대</b>첫 몇 달은 부모 곁에서 자는 아기가 많아요. 안 쓰고 당근에 파는 경우가 흔해요.</li>
     </ul>
     <div class="honest">
-      <b>왜 이런 걸 알려주냐고요?</b><br>
-      저희는 판매처에서 수수료를 받습니다. 많이 사게 할수록 저희가 벌죠.
-      그런데도 이 목록을 넣은 이유는, 한 번 속은 엄마는 다시 오지 않기 때문입니다.
-      필요한 것만 제값에 사시는 게 결국 저희에게도 이득입니다.
+      <b>왜 사지 말라고 하냐고요?</b><br>
+      저희는 판매처에서 수수료를 받아요. 많이 사실수록 저희가 벌죠.
+      그런데도 이 목록을 넣은 건, <b>한 번 속으신 분은 다시 안 오시기 때문이에요.</b>
+      필요한 것만 제값에 사시는 게 결국 저희에게도 이득이에요.
     </div>
   </div>
 </div>
 
-<!-- 하단 요약 -->
 <div class="fbar">
   <div class="l">
     <div class="k" id="fk">지금 사야 할 것</div>
-    <div class="v num" id="fv">0원 <small id="fs">0개 남음</small></div>
+    <div class="v num" id="fv">0원 <small id="fs">0개</small></div>
   </div>
-  <button class="btn" id="fbtn">최저가 한번에 보기</button>
+  <button class="btn jua" id="fbtn">최저가 모아보기</button>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const won = n => n.toLocaleString('ko-KR') + '원';
 const $ = s => document.querySelector(s);
 
-/* ══════════════════════════════════════════
-   핵심 데이터: "언제 사야 하는가"
-   week = 이 주차부터 사기 시작하면 되는 시점
-   ══════════════════════════════════════════ */
+/* ── 실제 엄마들의 출산 준비 엑셀에서 뽑은 항목들 ── */
 const LIST = [
-  // ── 28~32주: 크고 비싼 것부터. 고민할 시간이 필요하다
-  {id:'stroller', nm:'유모차', week:28, must:true, price:292000, qty:'1대',
-   why:'가장 오래 고민하게 되는 품목입니다. <b>배가 더 나오기 전에</b> 매장에서 직접 밀어 보고 접어 보세요.'},
-  {id:'carseat', nm:'카시트', week:28, must:true, price:318000, qty:'1대',
-   why:'<b>퇴원할 때 병원에서 바로 필요합니다.</b> 법적으로도 6세 미만은 카시트 착용이 의무입니다. 미리 차에 설치까지 해 두세요.'},
-  {id:'bed', nm:'아기침대 또는 범퍼침대', week:30, must:false, price:89000, qty:'1개',
-   why:'많은 아기가 첫 몇 달은 부모 곁에서 잡니다. <b>급하지 않습니다.</b> 조리원에서 아기 수면 패턴을 본 뒤 결정해도 됩니다.'},
+  {id:'stroller', nm:'유모차', week:28, must:1, price:298000, qty:'1대', mode:'buy',
+   why:'가장 오래 고민하게 돼요. <b>배가 더 나오기 전에</b> 매장에서 직접 밀어 보고 접어 보세요.'},
+  {id:'carseat', nm:'카시트', week:28, must:1, price:318000, qty:'1대', mode:'buy',
+   why:'<b>퇴원할 때 병원에서 바로 필요해요.</b> 6세 미만은 법적으로도 착용 의무예요. 미리 차에 설치까지 해 두세요.'},
+  {id:'bed', nm:'아기침대', week:30, must:0, price:89000, qty:'1개', mode:'used',
+   why:'첫 몇 달은 부모 곁에서 자는 아기가 많아요. 쓰는 기간이 짧아 <b>당근 매물이 정말 많아요.</b>',
+   hint:'당근 시세 40,000원 · 새것 대비 -55%'},
 
-  // ── 32~34주: 수유·목욕 준비
-  {id:'bottle', nm:'젖병 (신생아용)', week:32, must:true, price:37900, qty:'3~4개',
-   why:'모유수유 계획이어도 <b>최소 2~3개는 필요합니다.</b> 처음부터 많이 사지 말고, 아기가 잘 빠는 젖꼭지를 찾은 뒤 추가하세요.'},
-  {id:'pump', nm:'유축기', week:32, must:false, price:169000, qty:'1대',
-   why:'모유수유 여부를 아직 모릅니다. <b>산후조리원에서 대여해 써 본 뒤</b> 사도 늦지 않습니다.'},
-  {id:'bath', nm:'아기 욕조', week:32, must:true, price:36500, qty:'1개',
-   why:'신생아는 배꼽이 떨어질 때까지 통목욕을 못 합니다. 첫 2주는 부분 목욕만 하니 <b>비싼 걸 살 이유가 없습니다.</b>'},
-  {id:'skincare', nm:'저자극 로션·워시', week:32, must:true, price:41500, qty:'각 1개',
-   why:'무향·무색소 제품으로. <b>대용량은 피하세요.</b> 아기 피부에 안 맞아 바꾸는 경우가 흔합니다.'},
+  {id:'bottle', nm:'젖병 (신생아용)', week:32, must:1, price:37900, qty:'3~4개', mode:'deal',
+   why:'모유수유 계획이어도 <b>2~3개는 필요해요.</b> 처음부터 많이 사지 마시고, 아기가 잘 빠는 젖꼭지를 찾은 뒤 늘리세요.',
+   hint:'세일이 자주 나와요. 알림 걸어두시면 평균 15% 싸게 사실 수 있어요'},
+  {id:'pump', nm:'유축기', week:32, must:0, price:159000, qty:'1대', mode:'used',
+   why:'모유수유를 하게 될지 아직 모르잖아요. <b>산후조리원에서 대여해 써 본 뒤</b> 사셔도 늦지 않아요.',
+   hint:'당근에 거의 새것이 많아요. 부속(깔때기·밸브)만 새로 사면 돼요'},
+  {id:'bath', nm:'아기 욕조', week:32, must:1, price:36500, qty:'1개', mode:'buy',
+   why:'배꼽이 떨어질 때까진 통목욕을 못 해요. 첫 2주는 부분 목욕만 하니 <b>비싼 걸 사실 이유가 없어요.</b>'},
+  {id:'skin', nm:'저자극 로션·워시', week:32, must:1, price:41500, qty:'각 1개', mode:'buy',
+   why:'무향·무색소로. <b>대용량은 피하세요.</b> 피부에 안 맞아 바꾸는 경우가 흔해요.'},
 
-  // ── 34~36주: 소모품. 너무 일찍 사면 손해
-  {id:'diaper', nm:'기저귀 (신생아 NB)', week:34, must:true, price:49900, qty:'1~2팩만',
-   why:'<b>절대 대량으로 사지 마세요.</b> 아기 체중에 따라 NB를 2주 만에 졸업하기도 하고, 브랜드가 안 맞아 발진이 나기도 합니다.'},
-  {id:'wipes', nm:'물티슈', week:34, must:true, price:23500, qty:'2~3팩',
-   why:'이건 대량으로 사도 됩니다. 다만 <b>피부에 맞는지 1팩 먼저 써 보고</b> 추가하세요.'},
-  {id:'clothes', nm:'신생아 배냇저고리·우주복', week:34, must:true, price:45000, qty:'5~6벌',
-   why:'<b>출산 선물로 가장 많이 들어오는 품목입니다.</b> 최소한만 사고, 선물 받은 뒤 부족한 걸 채우세요. 3개월이면 못 입습니다.'},
-  {id:'carrier', nm:'아기띠', week:34, must:false, price:84900, qty:'1개',
-   why:'신생아 때는 거의 안 씁니다. <b>목을 가누는 3~4개월부터</b> 본격적으로 쓰게 됩니다. 나중에 사도 됩니다.'},
+  {id:'diaper', nm:'기저귀 (신생아 NB)', week:34, must:1, price:49900, qty:'1~2팩만', mode:'deal',
+   why:'<b>절대 대량으로 사지 마세요.</b> NB를 2주 만에 졸업하기도 하고, 브랜드가 안 맞아 발진이 나기도 해요.',
+   hint:'핫딜이 정말 자주 나와요. 급하지 않으니 알림 걸고 기다리세요'},
+  {id:'wipes', nm:'물티슈', week:34, must:1, price:23500, qty:'2~3팩', mode:'deal',
+   why:'이건 대량으로 사셔도 돼요. 다만 <b>1팩 먼저 써 보고</b> 피부에 맞는지 확인하세요.',
+   hint:'1+1 행사가 자주 있어요'},
+  {id:'clothes', nm:'배냇저고리·바디슈트', week:34, must:1, price:0, qty:'최소한만', mode:'gift',
+   why:'<b>출산 선물로 가장 많이 들어오는 품목이에요.</b> 실제 준비 엑셀에서도 대부분 “선물받음”으로 적혀 있었어요. 3개월이면 못 입어요.',
+   hint:'거의 다 선물로 들어와요. 부족한 것만 나중에 채우세요'},
+  {id:'swaddle', nm:'속싸개·겉싸개', week:34, must:1, price:0, qty:'2~3장', mode:'gift',
+   why:'병원·조리원에서 주는 경우가 많고, <b>선물로도 가장 많이 들어와요.</b>',
+   hint:'병원 선물 품목이에요. 미리 사지 마세요'},
+  {id:'carrier', nm:'아기띠', week:34, must:0, price:84900, qty:'1개', mode:'buy',
+   why:'신생아 땐 거의 안 써요. <b>목을 가누는 3~4개월부터</b> 본격적으로 쓰게 돼요. 나중에 사셔도 돼요.'},
 
-  // ── 36주~: 입원 가방. 지금 안 싸면 늦는다
-  {id:'hospital', nm:'출산 가방 (산모 용품)', week:36, must:true, price:58000, qty:'1세트',
-   why:'<b>36주부터는 언제 진통이 와도 이상하지 않습니다.</b> 산모패드·수유브라·세면도구를 미리 싸서 현관에 두세요.'},
-  {id:'newbornkit', nm:'퇴원복·속싸개', week:36, must:true, price:32000, qty:'각 1~2개',
-   why:'병원에서 집으로 올 때 입힐 옷입니다. 계절에 맞는 두께로. <b>속싸개는 신생아 수면에 큰 도움이 됩니다.</b>'},
+  {id:'hospital', nm:'출산 가방 (산모용품)', week:36, must:1, price:58000, qty:'1세트', mode:'buy',
+   why:'<b>36주부터는 언제 진통이 와도 이상하지 않아요.</b> 산모패드·수유브라·세면도구를 미리 싸서 현관에 두세요.'},
+  {id:'discharge', nm:'퇴원복', week:36, must:1, price:32000, qty:'1벌', mode:'buy',
+   why:'병원에서 집으로 올 때 입힐 옷이에요. 계절에 맞는 두께로만 준비하세요.'},
 
-  // ── 출산 후
-  {id:'kitchen', nm:'분유 포트', week:99, must:false, price:47900, qty:'1대',
-   why:'분유수유를 하게 되면 그때 사세요. <b>미리 살 이유가 전혀 없습니다.</b>'},
-  {id:'babyfood', nm:'이유식 도구', week:99, must:false, price:29900, qty:'1세트',
-   why:'이유식은 <b>생후 6개월부터</b>입니다. 지금 사면 반년 동안 상자째 방치됩니다.'},
+  {id:'pot', nm:'분유 포트', week:99, must:0, price:47900, qty:'1대', mode:'used',
+   why:'분유수유를 하게 되면 그때 사세요. <b>미리 사실 이유가 전혀 없어요.</b>',
+   hint:'당근에 새것 같은 매물이 넘쳐요'},
+  {id:'babyfood', nm:'이유식 도구', week:99, must:0, price:29900, qty:'1세트', mode:'buy',
+   why:'이유식은 <b>생후 6개월부터</b>예요. 지금 사시면 반년 동안 상자째 방치돼요.'},
 ];
 
-const state = {};          // id → {done, alert}
-LIST.forEach(x => state[x.id] = {done:false, alert:false});
+const st = {};
+LIST.forEach(x=> st[x.id] = {done:false, alert:false});
 
-/* ── 주차 계산 ── */
-function currentWeek(){
+function cur(){
   const due = new Date($('#due').value);
-  const today = new Date('2026-07-12');           // 데모용 고정. 실제로는 new Date()
-  const daysLeft = Math.round((due - today) / 86400000);
-  const week = 40 - Math.floor(daysLeft / 7);
-  return {week: Math.max(1, Math.min(42, week)), daysLeft};
+  const today = new Date('2026-07-12');           // 데모 고정. 실제로는 new Date()
+  const d = Math.round((due - today)/86400000);
+  return {week: Math.max(1, Math.min(42, 40 - Math.floor(d/7))), d};
 }
+const bucket = (it, w) =>
+  it.week === 99 ? 'never' : (w >= it.week ? 'now' : (it.week - w <= 3 ? 'soon' : 'later'));
 
-/* ── 항목을 시기별로 분류 ── */
-function bucketOf(item, wk){
-  if(item.week === 99) return 'after';           // 출산 후
-  if(wk >= item.week) return 'now';              // 지금 살 시기
-  if(item.week - wk <= 3) return 'soon';         // 곧 (3주 안)
-  return 'later';                                // 아직
-}
-
-const BUCKETS = {
-  now:   {t:'지금 사야 할 것',  note:'이 시기를 놓치면 급하게 사게 되고, 급하면 비싸게 삽니다.'},
-  soon:  {t:'곧 준비할 것',     note:'아직 급하지 않습니다. 가격 알림을 걸어 두고 싸질 때 사세요.'},
-  later: {t:'나중에 준비할 것', note:'지금 사면 돈이 묶입니다. 시기가 되면 알려드릴게요.'},
-  after: {t:'낳고 나서 사도 되는 것', note:'미리 사서 후회하는 대표 품목들입니다.'},
+const SEC = {
+  now:   {t:'지금 사야 할 것',        n:'이 시기를 놓치면 급하게 사게 되고, 급하면 비싸게 사요.'},
+  soon:  {t:'곧 준비할 것',           n:'아직 급하지 않아요. 가격 알림 걸어두고 싸질 때 사세요.'},
+  later: {t:'나중에 준비할 것',        n:'지금 사시면 돈이 묶여요. 시기가 되면 알려드릴게요.'},
+  never: {t:'낳고 나서 사도 되는 것',  n:'미리 사서 후회하는 대표 품목이에요.'},
 };
-
-const CHECK = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
-const BELL  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>`;
+const MODE = {
+  gift: {tag:'선물로 들어와요', cls:'gift'},
+  used: {tag:'당근 추천',      cls:'used'},
+  deal: {tag:'핫딜 기다리기',   cls:'deal'},
+};
+const CHECK = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
 
 function render(){
-  const {week, daysLeft} = currentWeek();
-  $('#wk').textContent = week;
-  $('#dday').textContent = daysLeft > 0 ? `출산까지 ${daysLeft}일` : '출산 예정일이 지났습니다';
+  const {week, d} = cur();
+  $('#w').textContent = week;
+  $('#dd').textContent = d > 0 ? `출산까지 ${d}일` : '예정일이 지났어요';
 
-  const groups = {now:[], soon:[], later:[], after:[]};
-  LIST.forEach(it => groups[bucketOf(it, week)].push(it));
+  const g = {now:[], soon:[], later:[], never:[]};
+  LIST.forEach(it => g[bucket(it, week)].push(it));
 
-  $('#sections').innerHTML = Object.entries(groups).map(([k, items])=>{
+  $('#secs').innerHTML = Object.entries(g).map(([k, items])=>{
     if(!items.length) return '';
-    const b = BUCKETS[k];
-    const doneN = items.filter(i=>state[i.id].done).length;
-    return `<div class="sec">
-      <div class="sec-h">
-        <span class="dot ${k}"></span>
-        <h2>${b.t}</h2>
-        <span class="cnt num">${doneN} / ${items.length}</span>
-      </div>
-      <p class="sec-note">${b.note}</p>
+    const s = SEC[k];
+    const done = items.filter(i=>st[i.id].done).length;
+    return `<div class="bar8"></div>
+      <div class="sech"><span class="dot d-${k}"></span><h2 class="jua">${s.t}</h2>
+        <span class="cnt num">${done} / ${items.length}</span></div>
+      <p class="secn">${s.n}</p>
       ${items.map(it=>{
-        const s = state[it.id];
-        return `<div class="it ${s.done?'done':''}">
-          <button class="chk" data-chk="${it.id}" aria-label="체크">${CHECK}</button>
-          <div class="body">
+        const S = st[it.id], m = MODE[it.mode];
+        return `<div class="it ${S.done?'done':''}">
+          <button class="chk" data-c="${it.id}">${CHECK}</button>
+          <div class="bd">
             <div class="nmrow">
               <span class="nm">${it.nm}</span>
               <span class="tag ${it.must?'must':'opt'}">${it.must?'필수':'선택'}</span>
+              ${m?`<span class="tag ${m.cls}">${m.tag}</span>`:''}
             </div>
             <p class="why">${it.why}</p>
-            <div class="qty">권장 수량 <b>${it.qty}</b></div>
-            ${s.done ? '' : `
-            <div class="buy">
-              <span class="p num">${won(it.price)}<small>배송비 포함 최저</small></span>
-              <button class="go" data-go="${it.id}">최저가 보기</button>
-              <button class="bell ${s.alert?'on':''}" data-bell="${it.id}">
-                ${BELL}${s.alert ? '알림 켜짐' : '가격 알림'}
-              </button>
-            </div>`}
+            <div class="qty">권장 <b>${it.qty}</b></div>
+            ${it.hint?`<div class="hint ${m?m.cls:''}">${it.mode==='gift'?'🎁':it.mode==='used'?'🥕':'🔔'} ${it.hint}</div>`:''}
+            ${S.done ? '' : (it.price ? `
+              <div class="buy">
+                <span class="p num">${won(it.price)}<small>배송비 포함 최저</small></span>
+                <button class="go" data-g="${it.id}">최저가 보기</button>
+                <button class="bell ${S.alert?'on':''}" data-b="${it.id}">${S.alert?'🔔 알림 켜짐':'가격 알림'}</button>
+              </div>` : `
+              <div class="buy"><span class="p" style="color:var(--gift);font-size:14px">선물로 받으실 가능성이 높아요</span></div>`)}
           </div>
         </div>`;
-      }).join('')}
-    </div>`;
+      }).join('')}`;
   }).join('');
 
-  // 진행률 (출산 후 항목은 제외 — 지금 압박할 이유가 없다)
-  const target = LIST.filter(i => bucketOf(i, week) !== 'after');
-  const done = target.filter(i => state[i.id].done);
-  const pct = target.length ? Math.round(done.length / target.length * 100) : 0;
+  const target = LIST.filter(i => bucket(i, week) !== 'never');
+  const done = target.filter(i => st[i.id].done);
+  const pct = target.length ? Math.round(done.length/target.length*100) : 0;
   $('#pct').textContent = pct + '%';
   $('#fill').style.width = pct + '%';
-  $('#cntTxt').textContent = `${done.length} / ${target.length}`;
+  $('#cnt').textContent = `${done.length} / ${target.length}`;
+  $('#spent').textContent = won(done.reduce((a,b)=>a+b.price,0));
+  $('#left').textContent  = won(target.filter(i=>!st[i.id].done).reduce((a,b)=>a+b.price,0));
+  $('#saved').textContent = won(LIST.filter(i=>i.mode==='gift' || i.mode==='used')
+                                     .reduce((a,b)=>a + (b.mode==='gift' ? 45000 : Math.round(b.price*0.55)), 0));
 
-  const spent = done.reduce((a,b)=>a+b.price, 0);
-  const rest  = target.filter(i=>!state[i.id].done).reduce((a,b)=>a+b.price, 0);
-  $('#spent').textContent = won(spent);
-  $('#left').textContent  = won(rest);
-
-  // 하단 바 = "지금 사야 할 것"만
-  const nowLeft = groups.now.filter(i=>!state[i.id].done);
-  const nowSum  = nowLeft.reduce((a,b)=>a+b.price, 0);
+  const nowLeft = g.now.filter(i=>!st[i.id].done && i.price);
+  const sum = nowLeft.reduce((a,b)=>a+b.price,0);
   if(nowLeft.length){
-    $('#fk').textContent = `지금 사야 할 것 (${week}주차)`;
-    $('#fv').innerHTML = `${won(nowSum)} <small>${nowLeft.length}개 남음</small>`;
-    $('#fbtn').textContent = '최저가 한번에 보기';
-    $('#fbtn').disabled = false;
-  }else{
     $('#fk').textContent = `${week}주차에 살 것`;
-    $('#fv').innerHTML = `모두 준비됐어요 <small>다음은 ${nextWeekHint(week)}</small>`;
-    $('#fbtn').textContent = '다음 시기 보기';
+    $('#fv').innerHTML = `${won(sum)} <small>${nowLeft.length}개</small>`;
+  }else{
+    $('#fk').textContent = `${week}주차`;
+    $('#fv').innerHTML = `다 준비하셨어요 <small>잘하고 계세요</small>`;
   }
 
-  bind();
-}
-
-function nextWeekHint(wk){
-  const next = LIST.filter(i => i.week !== 99 && i.week > wk).sort((a,b)=>a.week-b.week)[0];
-  return next ? `${next.week}주차 · ${next.nm}` : '출산 가방';
-}
-
-function bind(){
-  document.querySelectorAll('[data-chk]').forEach(b=>{
-    b.onclick = ()=>{
-      const s = state[b.dataset.chk];
-      s.done = !s.done;
-      if(s.done) s.alert = false;
-      render();
-      toast(s.done ? '준비 완료로 표시했습니다' : '체크를 해제했습니다');
-    };
+  document.querySelectorAll('[data-c]').forEach(b=> b.onclick = ()=>{
+    const S = st[b.dataset.c]; S.done = !S.done; if(S.done) S.alert = false;
+    render(); toast(S.done ? '준비 완료로 표시했어요' : '체크를 해제했어요');
   });
-  document.querySelectorAll('[data-go]').forEach(b=>{
-    b.onclick = ()=>{
-      const it = LIST.find(x=>x.id===b.dataset.go);
-      toast(`‘${it.nm}’ 판매처 비교로 이동합니다`);
-    };
-  });
-  document.querySelectorAll('[data-bell]').forEach(b=>{
-    b.onclick = ()=>{
-      const s = state[b.dataset.bell];
-      const it = LIST.find(x=>x.id===b.dataset.bell);
-      s.alert = !s.alert;
-      render();
-      toast(s.alert
-        ? `${won(Math.round(it.price*0.93))} 이하가 되면 문자로 알려드릴게요`
-        : '가격 알림을 껐습니다');
-    };
+  document.querySelectorAll('[data-g]').forEach(b=> b.onclick = ()=>
+    toast(`‘${LIST.find(x=>x.id===b.dataset.g).nm}’ 판매처 비교로 이동해요`));
+  document.querySelectorAll('[data-b]').forEach(b=> b.onclick = ()=>{
+    const S = st[b.dataset.b], it = LIST.find(x=>x.id===b.dataset.b);
+    S.alert = !S.alert; render();
+    toast(S.alert ? `${won(Math.round(it.price*0.9))} 이하가 되면 문자로 알려드릴게요` : '알림을 껐어요');
   });
 }
 
-$('#due').onchange = ()=>{ render(); toast('주차를 다시 계산했습니다'); };
-$('#fbtn').onclick = ()=> toast('지금 사야 할 항목의 최저가를 모아서 보여드립니다');
+$('#due').onchange = ()=>{ render(); toast('주차를 다시 계산했어요'); };
+$('#fbtn').onclick = ()=> toast('지금 사야 할 항목의 최저가를 모아서 보여드려요');
 
 let tt;
 function toast(m){
-  const el = $('#toast');
-  el.textContent = m; el.classList.add('on');
+  const el = $('#toast'); el.textContent = m; el.classList.add('on');
   clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('on'), 2200);
 }
-
 render();
 </script>
 </body>

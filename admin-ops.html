@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>수집 현황 | 베이비프라이스 관리자</title>
+<style>
+  :root{
+    --bg:#0F1720; --panel:#161F2A; --panel-2:#1D2833;
+    --line:#26333F; --line-2:#1F2B36;
+    --ink:#E8EEF3; --ink-2:#9AA9B6; --ink-3:#66788A;
+    --ok:#2FBF71; --warn:#F0A93B; --err:#E5544B; --info:#4A9EE8;
+    --accent:#03C75A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'SF Mono','JetBrains Mono','D2Coding',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .num{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+  .page{max-width:1400px;margin:0 auto;padding:0 20px 60px}
+
+  /* 헤더 */
+  header{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+  .hd{max-width:1400px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:24px;height:56px}
+  .hd .lg{font-size:15px;font-weight:800;letter-spacing:-.02em}
+  .hd .lg span{color:var(--ink-3);font-weight:500;margin-left:6px;font-size:12.5px}
+  .hd nav{display:flex;gap:2px;margin-left:auto}
+  .hd nav a{padding:7px 14px;border-radius:6px;font-size:13px;font-weight:600;color:var(--ink-3);text-decoration:none}
+  .hd nav a.on{background:var(--panel-2);color:var(--ink)}
+  .hd nav a:hover{color:var(--ink)}
+
+  /* 상태 배너 */
+  .banner{
+    display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:10px;margin:20px 0;
+    border:1px solid;
+  }
+  .banner.ok{background:rgba(47,191,113,.08);border-color:rgba(47,191,113,.3)}
+  .banner.warn{background:rgba(240,169,59,.08);border-color:rgba(240,169,59,.32)}
+  .banner .pulse{
+    width:11px;height:11px;border-radius:50%;flex:none;position:relative;
+  }
+  .banner.ok .pulse{background:var(--ok)}
+  .banner.warn .pulse{background:var(--warn)}
+  .banner .pulse::after{
+    content:'';position:absolute;inset:-5px;border-radius:50%;border:2px solid currentColor;
+    color:inherit;opacity:.5;animation:ping 2s ease-out infinite;
+  }
+  .banner.ok .pulse::after{border-color:var(--ok)}
+  .banner.warn .pulse::after{border-color:var(--warn)}
+  @keyframes ping{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+  .banner .msg{flex:1}
+  .banner .msg b{font-size:15px;display:block}
+  .banner .msg span{font-size:12.5px;color:var(--ink-2)}
+  .banner .next{text-align:right;font-size:12px;color:var(--ink-2)}
+  .banner .next b{display:block;font-size:19px;color:var(--ink);letter-spacing:-.02em}
+  .banner .run{
+    background:var(--accent);color:#06210F;border-radius:7px;padding:0 18px;height:42px;
+    font-weight:800;font-size:13.5px;flex:none;
+  }
+  .banner .run:hover{filter:brightness(1.1)}
+  .banner .run:disabled{opacity:.4;cursor:not-allowed}
+  @media(max-width:760px){.banner{flex-wrap:wrap}.banner .next{width:100%;text-align:left}}
+
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .kpi .k{font-size:11.5px;color:var(--ink-3);display:flex;align-items:center;gap:5px}
+  .kpi .v{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-top:3px}
+  .kpi .v.alarm{color:var(--err)}
+  .kpi .v.good{color:var(--ok)}
+  .kpi .d{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+  .kpi .d.up{color:var(--ok)} .kpi .d.down{color:var(--err)}
+  .kpi .quota{height:5px;background:var(--line);border-radius:3px;margin-top:9px;overflow:hidden}
+  .kpi .quota i{display:block;height:100%;background:var(--info);border-radius:3px}
+  .kpi .quota i.hot{background:var(--warn)}
+
+  /* 그리드 */
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:12px;margin-bottom:12px}
+  @media(max-width:1000px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .ph{display:flex;align-items:center;gap:8px;padding:13px 18px;border-bottom:1px solid var(--line-2)}
+  .ph h2{font-size:13.5px;font-weight:800}
+  .ph .sub{font-size:11.5px;color:var(--ink-3);margin-left:auto}
+  .pb{padding:16px 18px}
+
+  /* 퍼널 */
+  .funnel{display:flex;flex-direction:column;gap:9px}
+  .fr{display:grid;grid-template-columns:96px 1fr 130px;gap:12px;align-items:center}
+  .fr .lb{font-size:12px;color:var(--ink-2);font-weight:600}
+  .fr .track{height:26px;background:var(--line-2);border-radius:5px;overflow:hidden;position:relative}
+  .fr .bar{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:9px;
+    font-size:11.5px;font-weight:800;color:#0B121A;transition:width .5s}
+  .fr .n{text-align:right;font-size:13px;font-weight:700}
+  .fr .n small{display:block;font-size:10.5px;color:var(--ink-3);font-weight:500}
+  .b1{background:#4A9EE8} .b2{background:#3FB6C4} .b3{background:#2FBF71} .b4{background:#8FD14F}
+
+  .drops{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+  .drops .t{font-size:11.5px;color:var(--ink-3);margin-bottom:9px}
+  .drow{display:flex;align-items:center;gap:9px;padding:5px 0;font-size:12.5px}
+  .drow .d{width:8px;height:8px;border-radius:2px;flex:none}
+  .drow .l{flex:1;color:var(--ink-2)}
+  .drow .v{font-weight:700;color:var(--ink)}
+  .drow .p{width:44px;text-align:right;color:var(--ink-3);font-size:11.5px}
+
+  /* 7일 차트 */
+  .spark{width:100%;height:120px;display:block}
+
+  /* 테이블 */
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{background:var(--panel-2);color:var(--ink-3);font-size:11px;font-weight:700;
+    text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);letter-spacing:.02em}
+  thead th:nth-child(n+3){text-align:right}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--line-2)}
+  tbody td:nth-child(n+3){text-align:right}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--panel-2)}
+  .src{font-weight:700}
+  .src small{display:block;font-weight:500;color:var(--ink-3);font-size:11px;margin-top:1px}
+  .pill{font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:4px;white-space:nowrap}
+  .pill.ok{background:rgba(47,191,113,.15);color:var(--ok)}
+  .pill.err{background:rgba(229,84,75,.15);color:var(--err)}
+  .pill.warn{background:rgba(240,169,59,.15);color:var(--warn)}
+  .pill.run{background:rgba(74,158,232,.15);color:var(--info)}
+  .err-msg{color:var(--err);font-size:11.5px}
+  .act{border:1px solid var(--line);border-radius:5px;padding:4px 10px;font-size:11.5px;color:var(--ink-2)}
+  .act:hover{border-color:var(--ink-2);color:var(--ink)}
+
+  /* 로그 */
+  .log{background:#0A1017;height:280px;overflow-y:auto;padding:12px 16px;font-size:11.5px;line-height:1.85}
+  .log div{white-space:pre-wrap;word-break:break-all}
+  .log .ts{color:var(--ink-3)}
+  .log .i{color:var(--info)}
+  .log .o{color:var(--ok)}
+  .log .w{color:var(--warn)}
+  .log .e{color:var(--err)}
+  .log .d{color:var(--ink-3)}
+  .log::-webkit-scrollbar{width:8px}
+  .log::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+
+  /* 이상 감지 */
+  .anom{padding:12px 16px;border-bottom:1px solid var(--line-2);display:flex;gap:12px;align-items:flex-start}
+  .anom:last-child{border-bottom:0}
+  .anom .ico{width:28px;height:28px;border-radius:7px;flex:none;display:grid;place-items:center;font-size:14px}
+  .anom .ico.a{background:rgba(229,84,75,.15)}
+  .anom .ico.b{background:rgba(240,169,59,.15)}
+  .anom .b2{flex:1;min-width:0}
+  .anom .ti{font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .anom .de{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .anom .de b{color:var(--err)}
+  .anom .btns{display:flex;gap:5px;flex:none}
+  .empty{padding:40px;text-align:center;color:var(--ink-3);font-size:12.5px}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,10px);opacity:0;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--ink);
+    padding:11px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:60;transition:.2s;pointer-events:none;
+  }
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <div class="lg">베이비프라이스 <span>관리자</span></div>
+    <nav>
+      <a href="#" class="on">수집 현황</a>
+      <a href="#">매칭 확인 <b style="color:var(--err)">6</b></a>
+      <a href="#">상품 등록</a>
+      <a href="#">가격 알림</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- 상태 -->
+  <div class="banner ok" id="banner">
+    <span class="pulse"></span>
+    <div class="msg">
+      <b id="bmsg">수집기 정상 · 마지막 실행 오늘 06:00</b>
+      <span id="bsub">5개 판매처 중 4곳 성공 · 맘스마트 1곳 실패 (robots.txt 수집 불허)</span>
+    </div>
+    <div class="next">
+      다음 자동 실행까지
+      <b class="mono" id="cd">--:--:--</b>
+    </div>
+    <button class="run" id="runNow">지금 수집</button>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpis">
+    <div class="kpi">
+      <div class="k">오늘 수집한 오퍼</div>
+      <div class="v num" id="k1">4,182</div>
+      <div class="d up">▲ 2.1% (어제 4,096)</div>
+    </div>
+    <div class="kpi">
+      <div class="k">매칭 대기</div>
+      <div class="v num alarm" id="k2">6</div>
+      <div class="d">쌓이면 최저가가 부정확해져요</div>
+    </div>
+    <div class="kpi">
+      <div class="k">자동 매칭률</div>
+      <div class="v num good">91.4%</div>
+      <div class="d">모델코드 등록이 늘수록 올라감</div>
+    </div>
+    <div class="kpi">
+      <div class="k">네이버 API 쿼터</div>
+      <div class="v num">8,420<span style="font-size:14px;color:var(--ink-3)"> / 25,000</span></div>
+      <div class="quota"><i style="width:34%"></i></div>
+    </div>
+  </div>
+
+  <!-- 퍼널 + 7일 -->
+  <div class="grid">
+    <div class="panel">
+      <div class="ph">
+        <h2>오늘의 수집 퍼널</h2>
+        <span class="sub">2026-07-12 06:00 ~ 06:06</span>
+      </div>
+      <div class="pb">
+        <div class="funnel">
+          <div class="fr">
+            <span class="lb">API 응답</span>
+            <div class="track"><div class="bar b1" style="width:100%">100%</div></div>
+            <div class="n num">4,182<small>건 수신</small></div>
+          </div>
+          <div class="fr">
+            <span class="lb">필터 통과</span>
+            <div class="track"><div class="bar b2" style="width:46%">46%</div></div>
+            <div class="n num">1,930<small>2,252건 제외</small></div>
+          </div>
+          <div class="fr">
+            <span class="lb">매칭 성공</span>
+            <div class="track"><div class="bar b3" style="width:42%">42%</div></div>
+            <div class="n num">1,764<small>166건 보류</small></div>
+          </div>
+          <div class="fr">
+            <span class="lb">가격 갱신</span>
+            <div class="track"><div class="bar b4" style="width:8%">8%</div></div>
+            <div class="n num">341<small>실제로 값이 바뀜</small></div>
+          </div>
+        </div>
+
+        <div class="drops">
+          <div class="t">2,252건은 왜 버려졌나 — 이 비율이 갑자기 튀면 필터가 잘못된 겁니다</div>
+          <div class="drow"><span class="d" style="background:#E5544B"></span><span class="l">카테고리 불일치 (젖소 착유기·구연산 등)</span><b class="v num">1,104</b><span class="p num">49%</span></div>
+          <div class="drow"><span class="d" style="background:#F0A93B"></span><span class="l">부속품·소모품 (밸브·필터·커버)</span><b class="v num">648</b><span class="p num">29%</span></div>
+          <div class="drow"><span class="d" style="background:#4A9EE8"></span><span class="l">가격 하한 미달 (본품 아님)</span><b class="v num">312</b><span class="p num">14%</span></div>
+          <div class="drow"><span class="d" style="background:#8B6FD1"></span><span class="l">중고·전시·단종 (productType)</span><b class="v num">188</b><span class="p num">8%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><h2>최근 7일 수집량</h2><span class="sub">건/일</span></div>
+      <div class="pb">
+        <svg class="spark" id="spark" viewBox="0 0 400 120" preserveAspectRatio="none"></svg>
+        <div class="drops" style="border-top-color:var(--line);margin-top:6px">
+          <div class="drow"><span class="l">7일 평균</span><b class="v num">4,058건</b></div>
+          <div class="drow"><span class="l">7일 평균 매칭률</span><b class="v num">90.8%</b></div>
+          <div class="drow"><span class="l">연속 성공</span><b class="v num" style="color:var(--ok)">14일</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 수집기별 -->
+  <div class="panel" style="margin-bottom:12px">
+    <div class="ph">
+      <h2>판매처별 수집 결과</h2>
+      <span class="sub">실패한 곳은 즉시 조치가 필요합니다</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th style="width:150px">판매처</th><th>방식</th>
+        <th>수집</th><th>통과</th><th>신규</th><th>소요</th><th style="width:90px">상태</th><th style="width:210px">비고</th>
+      </tr></thead>
+      <tbody id="srcs"></tbody>
+    </table>
+  </div>
+
+  <!-- 이상 + 로그 -->
+  <div class="grid">
+    <div class="panel">
+      <div class="ph">
+        <h2>실행 로그</h2>
+        <span class="sub"><span id="livedot" style="color:var(--ok)">●</span> tail -f collector.log</span>
+      </div>
+      <div class="log mono" id="log"></div>
+    </div>
+
+    <div class="panel">
+      <div class="ph">
+        <h2>사람이 봐야 하는 것</h2>
+        <span class="sub" id="anomN">4건</span>
+      </div>
+      <div id="anoms"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const won = n => n.toLocaleString('ko-KR') + '원';
+
+/* ── 다음 실행 카운트다운 (매일 06:00 KST) ── */
+function tick(){
+  const now = new Date();
+  const next = new Date(now);
+  next.setHours(6,0,0,0);
+  if(next <= now) next.setDate(next.getDate()+1);
+  const s = Math.floor((next - now)/1000);
+  const h = String(Math.floor(s/3600)).padStart(2,'0');
+  const m = String(Math.floor(s%3600/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  $('#cd').textContent = `${h}:${m}:${ss}`;
+}
+tick(); setInterval(tick, 1000);
+
+/* ── 7일 스파크라인 ── */
+(function(){
+  const d = [3902, 4130, 3988, 4210, 3860, 4096, 4182];
+  const W=400,H=120,L=6,R=6,T=12,B=22;
+  const mn=Math.min(...d)*0.95, mx=Math.max(...d)*1.02;
+  const bw = (W-L-R)/d.length;
+  const y = v => T + (mx-v)*(H-T-B)/(mx-mn);
+  const days = ['6','7','8','9','10','11','12'];
+  let bars='', lbl='';
+  d.forEach((v,i)=>{
+    const x = L + i*bw + bw*0.18;
+    const w = bw*0.64;
+    const h = (H-B) - y(v);
+    const last = i===d.length-1;
+    bars += `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}"
+              rx="3" fill="${last?'#03C75A':'#2C3D4D'}"/>`;
+    if(last) bars += `<text x="${(x+w/2).toFixed(1)}" y="${(y(v)-5).toFixed(1)}" text-anchor="middle"
+              font-size="10" font-weight="800" fill="#03C75A" font-family="monospace">${v.toLocaleString()}</text>`;
+    lbl += `<text x="${(x+w/2).toFixed(1)}" y="${H-6}" text-anchor="middle" font-size="9.5" fill="#66788A" font-family="monospace">${days[i]}</text>`;
+  });
+  $('#spark').innerHTML = bars + lbl;
+})();
+
+/* ── 판매처별 ── */
+const SRC = [
+  {n:'쿠팡',       t:'제휴 API',    f:1840, p:902,  nu:118, s:'131s', st:'ok',   note:'—'},
+  {n:'네이버쇼핑', t:'검색 API',    f:1706, p:781,  nu:74,  s:'220s', st:'ok',   note:'쿼터 8,420 / 25,000 (34%)'},
+  {n:'베이비몰',   t:'CSV 피드',    f:412,  p:174,  nu:31,  s:'18s',  st:'ok',   note:'—'},
+  {n:'키즈일레븐', t:'CSV 피드',    f:224,  p:73,   nu:18,  s:'11s',  st:'warn', note:'피드가 3일째 갱신 안 됨'},
+  {n:'맘스마트',   t:'크롤링',      f:0,    p:0,    nu:0,   s:'—',    st:'err',  note:'robots.txt 수집 불허 → <b style="color:var(--warn)">피드 제공 요청 필요</b>'},
+];
+$('#srcs').innerHTML = SRC.map(s=>`
+  <tr>
+    <td><div class="src">${s.n}</div></td>
+    <td style="color:var(--ink-3)">${s.t}</td>
+    <td class="num">${s.f ? s.f.toLocaleString() : '<span style="color:var(--ink-3)">0</span>'}</td>
+    <td class="num">${s.p ? s.p.toLocaleString() : '<span style="color:var(--ink-3)">0</span>'}</td>
+    <td class="num" style="color:${s.nu?'var(--ok)':'var(--ink-3)'}">${s.nu ? '+'+s.nu : '0'}</td>
+    <td class="mono" style="color:var(--ink-3)">${s.s}</td>
+    <td><span class="pill ${s.st}">${s.st==='ok'?'정상':s.st==='warn'?'주의':'실패'}</span></td>
+    <td style="text-align:left;color:var(--ink-3);font-size:11.5px">${s.note}</td>
+  </tr>`).join('');
+
+/* ── 사람이 봐야 하는 것 ── */
+const ANOM = [
+  {k:'a', ic:'⚠️', t:'세이프원 디럭스 유모차 세트', d:'키즈일레븐 · <b>589,000 → 189,000원 (-68%)</b> 하루 만에 급락 → 반영 보류'},
+  {k:'a', ic:'⚠️', t:'브이핏 유모차 컵홀더 거치대', d:'네이버 · <b>9,900원</b> — 유모차 카테고리에 부속품이 들어옴'},
+  {k:'b', ic:'🔗', t:'매칭 대기 6건', d:'2일째 처리 안 됨. 쌓이면 최저가가 부정확해집니다'},
+  {k:'b', ic:'📉', t:'3일 이상 가격 갱신 없는 상품 12개', d:'판매처가 상품을 내렸거나 매칭이 끊겼을 수 있어요'},
+];
+$('#anoms').innerHTML = ANOM.map(a=>`
+  <div class="anom">
+    <div class="ico ${a.k}">${a.ic}</div>
+    <div class="b2">
+      <div class="ti">${a.t}</div>
+      <div class="de">${a.d}</div>
+    </div>
+    <div class="btns"><button class="act">확인</button></div>
+  </div>`).join('');
+$('#anomN').textContent = ANOM.length + '건';
+document.querySelectorAll('.act').forEach(b=> b.onclick = ()=> toast('처리했습니다'));
+
+/* ── 로그 ── */
+const LOG = [
+  ['06:00:00','i','파이프라인 시작 (scheduler: daily_collect)'],
+  ['06:00:01','d','키워드 12개 · 수집기 5개 로드'],
+  ['06:00:02','i','[coupang] 수집 중… "유모차"'],
+  ['06:00:31','o','[coupang] 1,840건 수신 (131s)'],
+  ['06:00:32','i','[naver]   수집 중… sort=sim'],
+  ['06:01:15','w','[naver]   필터 제외 1,104건 — 카테고리 불일치'],
+  ['06:04:12','o','[naver]   1,706건 수신 · 쿼터 8,420/25,000'],
+  ['06:04:13','i','[babymall] CSV 피드 다운로드…'],
+  ['06:04:31','o','[babymall] 412건 파싱 완료'],
+  ['06:04:32','w','[kids11]  피드 last-modified 3일 전 — 갱신 안 됨'],
+  ['06:04:43','o','[kids11]  224건 (캐시된 피드 사용)'],
+  ['06:04:44','i','[moms]    robots.txt 확인 중…'],
+  ['06:04:45','e','[moms]    PermissionError: robots.txt가 수집을 허용하지 않습니다'],
+  ['06:04:45','e','[moms]    → 수집 건너뜀. 피드 제공을 요청하세요'],
+  ['06:04:46','w','급락 감지: 세이프원 디럭스 589,000 → 189,000 (-68%) — 보류'],
+  ['06:05:02','i','매칭 시작 · 후보 1,930건'],
+  ['06:05:44','o','자동 매칭 1,764건 (91.4%) · 보류 166건'],
+  ['06:05:45','i','가격 스냅샷 기록 중…'],
+  ['06:05:58','o','price_history 341개 상품 갱신'],
+  ['06:05:59','i','가격 알림 조건 확인…'],
+  ['06:06:03','o','알림 37건 발송 완료'],
+  ['06:06:04','o','파이프라인 종료 · 총 364초 · status=partial (1/5 실패)'],
+];
+const logEl = $('#log');
+let li = 0;
+function pushLog(){
+  if(li >= LOG.length){ li = 0; return; }
+  const [t, k, m] = LOG[li++];
+  const d = document.createElement('div');
+  d.innerHTML = `<span class="ts">${t}</span> <span class="${k}">${
+    {i:'INFO ',o:'OK   ',w:'WARN ',e:'ERROR',d:'DEBUG'}[k]}</span> <span class="${k==='e'?'e':k==='w'?'w':''}">${m}</span>`;
+  logEl.appendChild(d);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+LOG.forEach(()=> pushLog());
+li = 0;
+
+/* 지금 수집 */
+$('#runNow').onclick = ()=>{
+  const b = $('#runNow');
+  b.disabled = true; b.textContent = '수집 중…';
+  $('#banner').className = 'banner warn';
+  $('#bmsg').textContent = '수집 진행 중…';
+  $('#bsub').textContent = '약 6분 걸려요. 창을 닫으셔도 계속 진행됩니다.';
+  logEl.innerHTML = '';
+  li = 0;
+  const iv = setInterval(()=>{
+    pushLog();
+    if(li >= LOG.length){
+      clearInterval(iv);
+      b.disabled = false; b.textContent = '지금 수집';
+      $('#banner').className = 'banner ok';
+      $('#bmsg').textContent = '수집 완료 · 방금 실행';
+      $('#bsub').textContent = '5개 판매처 중 4곳 성공 · 맘스마트 1곳 실패 (robots.txt 수집 불허)';
+      toast('수집이 끝났어요. 매칭 대기 6건을 확인해 주세요');
+    }
+  }, 180);
+};
+
+let tt;
+function toast(m){
+  const el = $('#toast'); el.textContent = m; el.classList.add('on');
+  clearTimeout(tt); tt = setTimeout(()=>el.classList.remove('on'), 2200);
+}
+</script>
+</body>
+</html>
